@@ -1,3 +1,4 @@
+/.idea
 /config/config_db*
 /config/config_path.php
 /tests/config_db*
