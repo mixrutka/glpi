@@ -1,33 +1,33 @@
 <?php
-/*
- -------------------------------------------------------------------------
- GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2015-2016 Teclib'.
-
- http://glpi-project.org
-
- based on GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2003-2014 by the INDEPNET Development Team.
-
- -------------------------------------------------------------------------
-
- LICENSE
-
- This file is part of GLPI.
-
- GLPI is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
-
- GLPI is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with GLPI. If not, see <http://www.gnu.org/licenses/>.
- --------------------------------------------------------------------------
+/**
+ * ---------------------------------------------------------------------
+ * GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2015-2017 Teclib' and contributors.
+ *
+ * http://glpi-project.org
+ *
+ * based on GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2003-2014 by the INDEPNET Development Team.
+ *
+ * ---------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of GLPI.
+ *
+ * GLPI is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * GLPI is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GLPI. If not, see <http://www.gnu.org/licenses/>.
+ * ---------------------------------------------------------------------
  */
 
 /** @file
@@ -211,10 +211,10 @@ class NotificationTargetTicket extends NotificationTargetCommonITILObject {
                 WHERE `users_id`='".$data['users_id']."' ".
                       getEntitiesRestrictRequest("AND", "glpi_profiles_users", "entities_id",
                                                  $this->getEntity(), true)."
-                      AND profiles_id IN (".implode(',',$this->private_profiles).")";
+                      AND profiles_id IN (".implode(',', $this->private_profiles).")";
       $result = $DB->query($query);
 
-      if ($DB->result($result,0,'cpt')) {
+      if ($DB->result($result, 0, 'cpt')) {
          return array('show_private' => 1);
       }
       return array('show_private' => 0);
@@ -361,7 +361,6 @@ class NotificationTargetTicket extends NotificationTargetCommonITILObject {
       // is ticket deleted
       $datas['##ticket.isdeleted##'] = Dropdown::getYesNo($item->getField('is_deleted'));
 
-
       //Tags associated with the object linked to the ticket
       $datas['##ticket.itemtype##']                 = '';
       $datas['##ticket.item.name##']                = '';
@@ -506,7 +505,7 @@ class NotificationTargetTicket extends NotificationTargetCommonITILObject {
          $datas['##ticket.numberoflinkedtickets##'] = count($datas['linkedtickets']);
 
          $restrict          = "`tickets_id`='".$item->getField('id')."'";
-         $problems          = getAllDatasFromTable('glpi_problems_tickets',$restrict);
+         $problems          = getAllDatasFromTable('glpi_problems_tickets', $restrict);
          $datas['problems'] = array();
          if (count($problems)) {
             $problem = new Problem();
@@ -534,7 +533,7 @@ class NotificationTargetTicket extends NotificationTargetCommonITILObject {
          $datas['##ticket.numberofproblems##'] = count($datas['problems']);
 
          $restrict         = "`tickets_id`='".$item->getField('id')."'";
-         $changes          = getAllDatasFromTable('glpi_changes_tickets',$restrict);
+         $changes          = getAllDatasFromTable('glpi_changes_tickets', $restrict);
          $datas['changes'] = array();
          if (count($changes)) {
             $change = new Change();
@@ -566,10 +565,10 @@ class NotificationTargetTicket extends NotificationTargetCommonITILObject {
             $restrict .= " AND `is_private` = '0'";
          }
 
-         $restrict .= " ORDER BY `date` DESC, `id` ASC";
+         $restrict .= " ORDER BY `date_mod` DESC, `id` ASC";
 
          //Followup infos
-         $followups          = getAllDatasFromTable('glpi_ticketfollowups',$restrict);
+         $followups          = getAllDatasFromTable('glpi_ticketfollowups', $restrict);
          $datas['followups'] = array();
          foreach ($followups as $followup) {
             $tmp                             = array();
@@ -585,10 +584,9 @@ class NotificationTargetTicket extends NotificationTargetCommonITILObject {
 
          $datas['##ticket.numberoffollowups##'] = count($datas['followups']);
 
-
          // Approbation of solution
          $restrict .= " LIMIT 1";
-         $replysolved = getAllDatasFromTable('glpi_ticketfollowups',$restrict);
+         $replysolved = getAllDatasFromTable('glpi_ticketfollowups', $restrict);
          $data = current($replysolved);
          $datas['##ticket.solution.approval.description##'] = $data['content'];
          $datas['##ticket.solution.approval.date##']        = Html::convDateTime($data['date']);
@@ -603,7 +601,7 @@ class NotificationTargetTicket extends NotificationTargetCommonITILObject {
 
          $restrict .= " ORDER BY `submission_date` DESC, `id` ASC";
 
-         $validations = getAllDatasFromTable('glpi_ticketvalidations',$restrict);
+         $validations = getAllDatasFromTable('glpi_ticketvalidations', $restrict);
          $datas['validations'] = array();
          foreach ($validations as $validation) {
             $tmp = array();
@@ -651,8 +649,8 @@ class NotificationTargetTicket extends NotificationTargetCommonITILObject {
                $datas['##ticket.urlsatisfaction##']
                            = $this->formatURL($options['additionnaloption']['usertype'],
                                               "ticket_".$item->getField("id").'_Ticket$3');
-            // external inquest
-            } else if ($inquest->fields['type'] == 2) {
+
+            } else if ($inquest->fields['type'] == 2) { // external inquest
                $datas['##ticket.urlsatisfaction##'] = Entity::generateLinkSatisfaction($item);
             }
 
@@ -668,7 +666,6 @@ class NotificationTargetTicket extends NotificationTargetCommonITILObject {
                                        = $inquest->fields['comment'];
          }
       }
-
       return $datas;
    }
 
@@ -687,7 +684,7 @@ class NotificationTargetTicket extends NotificationTargetCommonITILObject {
                          AND `glpi_notificationtargets`.`items_id` = '".Notification::AUTHOR."'";
 
          if ($result = $DB->query($query)) {
-            if ($DB->result($result,0,0) > 0) {
+            if ($DB->result($result, 0, 0) > 0) {
                return true;
             }
          }
@@ -765,19 +762,19 @@ class NotificationTargetTicket extends NotificationTargetCommonITILObject {
                                    'events' => NotificationTarget::TAG_FOR_ALL_EVENTS));
       }
 
-     //Events specific for validation
-     $tags = array('validation.author'            => __('Requester'),
-                   'validation.status'            => __('Status of the approval request'),
-                   'validation.submissiondate'    => sprintf(__('%1$s: %2$s'), __('Request'),
-                                                             __('Date')),
-                   'validation.commentsubmission' => sprintf(__('%1$s: %2$s'), __('Request'),
-                                                             __('Comments')),
-                   'validation.validationdate'    => sprintf(__('%1$s: %2$s'), __('Validation'),
-                                                             __('Date')),
-                   'validation.validator'         => __('Decision-maker'),
-                   'validation.commentvalidation' => sprintf(__('%1$s: %2$s'), __('Validation'),
-                                                             __('Comments'))
-                   );
+      //Events specific for validation
+      $tags = array('validation.author'            => __('Requester'),
+                    'validation.status'            => __('Status of the approval request'),
+                    'validation.submissiondate'    => sprintf(__('%1$s: %2$s'), __('Request'),
+                                                              __('Date')),
+                    'validation.commentsubmission' => sprintf(__('%1$s: %2$s'), __('Request'),
+                                                              __('Comments')),
+                    'validation.validationdate'    => sprintf(__('%1$s: %2$s'), __('Validation'),
+                                                              __('Date')),
+                    'validation.validator'         => __('Decision-maker'),
+                    'validation.commentvalidation' => sprintf(__('%1$s: %2$s'), __('Validation'),
+                                                              __('Comments'))
+                    );
 
       foreach ($tags as $tag => $label) {
          $this->addTagToList(array('tag'    => $tag,
@@ -799,8 +796,6 @@ class NotificationTargetTicket extends NotificationTargetCommonITILObject {
                                    'lang'  => false,
                                    'events' => array('validation', 'validation_answer')));
       }
-
-
 
       // Events for ticket satisfaction
       $tags = array('satisfaction.datebegin'    => __('Creation date of the satisfaction survey'),
@@ -835,14 +830,14 @@ class NotificationTargetTicket extends NotificationTargetCommonITILObject {
                                    'events' => array('satisfaction')));
       }
 
-     //Foreach global tags
-     $tags = array('followups'     => _n('Followup', 'Followups', Session::getPluralNumber()),
-                   'validations'   => _n('Validation','Validations', Session::getPluralNumber()),
-                   'linkedtickets' => _n('Linked ticket', 'Linked tickets', Session::getPluralNumber()),
-                   'problems'      => _n('Problem', 'Problems', Session::getPluralNumber()),
-                   'changes'       => _n('Change', 'Changes', Session::getPluralNumber()),
-                   'items'         => _n('Associated item', 'Associated items', Session::getPluralNumber()),
-                   'documents'     => _n('Document', 'Documents', Session::getPluralNumber()));
+      //Foreach global tags
+      $tags = array('followups'     => _n('Followup', 'Followups', Session::getPluralNumber()),
+                    'validations'   => _n('Validation', 'Validations', Session::getPluralNumber()),
+                    'linkedtickets' => _n('Linked ticket', 'Linked tickets', Session::getPluralNumber()),
+                    'problems'      => _n('Problem', 'Problems', Session::getPluralNumber()),
+                    'changes'       => _n('Change', 'Changes', Session::getPluralNumber()),
+                    'items'         => _n('Associated item', 'Associated items', Session::getPluralNumber()),
+                    'documents'     => _n('Document', 'Documents', Session::getPluralNumber()));
 
       foreach ($tags as $tag => $label) {
          $this->addTagToList(array('tag'     => $tag,
@@ -850,7 +845,6 @@ class NotificationTargetTicket extends NotificationTargetCommonITILObject {
                                    'value'   => false,
                                    'foreach' => true));
       }
-
 
       //Tags with just lang
       $tags = array('ticket.linkedtickets'    => _n('Linked ticket', 'Linked tickets', Session::getPluralNumber()),
@@ -868,7 +862,6 @@ class NotificationTargetTicket extends NotificationTargetCommonITILObject {
                                    'value' => false,
                                    'lang'  => true));
       }
-
 
       //Foreach tag for alertnotclosed
       $this->addTagToList(array('tag'     => 'tickets',
@@ -922,7 +915,7 @@ class NotificationTargetTicket extends NotificationTargetCommonITILObject {
 
       //Tickets with a fixed set of values
       $allowed_validation = array();
-      $status = TicketValidation::getAllStatusArray(false,true);
+      $status = TicketValidation::getAllStatusArray(false, true);
       foreach ($status as $key => $value) {
          $allowed_validation[] = $key;
       }

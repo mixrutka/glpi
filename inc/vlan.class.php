@@ -1,33 +1,33 @@
 <?php
-/*
- -------------------------------------------------------------------------
- GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2015-2016 Teclib'.
-
- http://glpi-project.org
-
- based on GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2003-2014 by the INDEPNET Development Team.
-
- -------------------------------------------------------------------------
-
- LICENSE
-
- This file is part of GLPI.
-
- GLPI is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
-
- GLPI is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with GLPI. If not, see <http://www.gnu.org/licenses/>.
- --------------------------------------------------------------------------
+/**
+ * ---------------------------------------------------------------------
+ * GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2015-2017 Teclib' and contributors.
+ *
+ * http://glpi-project.org
+ *
+ * based on GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2003-2014 by the INDEPNET Development Team.
+ *
+ * ---------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of GLPI.
+ *
+ * GLPI is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * GLPI is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GLPI. If not, see <http://www.gnu.org/licenses/>.
+ * ---------------------------------------------------------------------
  */
 
 /** @file
@@ -49,7 +49,7 @@ class Vlan extends CommonDropdown {
 
 
    static function getTypeName($nb=0) {
-    // Acronymous, no plural
+      // Acronymous, no plural
       return __('VLAN');
    }
 
@@ -68,26 +68,23 @@ class Vlan extends CommonDropdown {
       if ($field['name'] == 'tag') {
          Dropdown::showNumber('tag', array('value' => $this->fields['tag'],
                                            'min'   => 1,
-                                           'max'   => (pow(2,12) - 2)));
+                                           'max'   => (pow(2, 12) - 2)));
       }
    }
 
 
-   /**
-    * Get search function for the class
-    *
-    * @return array of search option
-   **/
-   function getSearchOptions() {
+   function getSearchOptionsNew() {
+      $tab = parent::getSearchOptionsNew();
 
-      $tab                 = parent::getSearchOptions();
-
-      $tab[11]['table']    = $this->getTable();
-      $tab[11]['field']    = 'tag';
-      $tab[11]['name']     = __('ID TAG');
-      $tab[11]['datatype'] = 'number';
-      $tab[11]['min']      = 1;
-      $tab[11]['max']      = 4094;
+      $tab[] = [
+         'id'                 => '11',
+         'table'              => $this->getTable(),
+         'field'              => 'tag',
+         'name'               => __('ID TAG'),
+         'datatype'           => 'number',
+         'min'                => 1,
+         'max'                => 4094
+      ];
 
       return $tab;
    }

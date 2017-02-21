@@ -1,33 +1,33 @@
 <?php
-/*
- -------------------------------------------------------------------------
- GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2015-2016 Teclib'.
-
- http://glpi-project.org
-
- based on GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2003-2014 by the INDEPNET Development Team.
-
- -------------------------------------------------------------------------
-
- LICENSE
-
- This file is part of GLPI.
-
- GLPI is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
-
- GLPI is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with GLPI. If not, see <http://www.gnu.org/licenses/>.
- --------------------------------------------------------------------------
+/**
+ * ---------------------------------------------------------------------
+ * GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2015-2017 Teclib' and contributors.
+ *
+ * http://glpi-project.org
+ *
+ * based on GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2003-2014 by the INDEPNET Development Team.
+ *
+ * ---------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of GLPI.
+ *
+ * GLPI is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * GLPI is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GLPI. If not, see <http://www.gnu.org/licenses/>.
+ * ---------------------------------------------------------------------
  */
 
 /** @file
@@ -52,6 +52,7 @@ class Config extends CommonDBTM {
 
    static $rightname              = 'config';
 
+   static $undisclosedFields      = array('proxy_passwd', 'smtp_passwd');
 
 
    static function getTypeName($nb=0) {
@@ -85,6 +86,14 @@ class Config extends CommonDBTM {
 
 
    static function canCreate() {
+      return false;
+   }
+
+
+   function canViewItem() {
+      if ($this->fields['context'] == 'core' || in_array($this->fields['context'], $_SESSION['glpi_plugins'])) {
+         return true;
+      }
       return false;
    }
 
@@ -191,8 +200,8 @@ class Config extends CommonDBTM {
       if (isset($input['_matrix'])) {
          $tab = array();
 
-         for ($urgency=1 ; $urgency<=5 ; $urgency++) {
-            for ($impact=1 ; $impact<=5 ; $impact++) {
+         for ($urgency=1; $urgency<=5; $urgency++) {
+            for ($impact=1; $impact<=5; $impact++) {
                $priority               = $input["_matrix_${urgency}_${impact}"];
                $tab[$urgency][$impact] = $priority;
             }
@@ -202,7 +211,7 @@ class Config extends CommonDBTM {
          $input['urgency_mask']    = 0;
          $input['impact_mask']     = 0;
 
-         for ($i=1 ; $i<=5 ; $i++) {
+         for ($i=1; $i<=5; $i++) {
             if ($input["_urgency_${i}"]) {
                $input['urgency_mask'] += (1<<$i);
             }
@@ -238,6 +247,16 @@ class Config extends CommonDBTM {
       return false;
    }
 
+   static public function unsetUndisclosedFields(&$fields) {
+      if (isset($fields['context']) && isset($fields['name'])) {
+         if ($fields['context'] == 'core'
+            && in_array($fields['name'], self::$undisclosedFields)) {
+            unset($fields['value']);
+         } else {
+            $fields = Plugin::doHookFunction('undiscloseConfigValue', $fields);
+         }
+      }
+   }
 
    /**
     * Print the config form for display
@@ -328,7 +347,7 @@ class Config extends CommonDBTM {
             __('Page size for dropdown (paging using scroll)').
             "</td><td>";
       Dropdown::showNumber('dropdown_max', array('value' => $CFG_GLPI["dropdown_max"],
-                                                 'min'   => 0,
+                                                 'min'   => 1,
                                                  'max'   => 200));
       echo "</td>";
       echo "<td>" . __('Autocompletion of text fields') . "</td><td>";
@@ -344,24 +363,8 @@ class Config extends CommonDBTM {
                                                      'max'   => 200,
                                                      'step'  => 1,
                                                      'toadd' => array(0 => __('Never'))));
-//       echo "</td><td>".__('Buffer time for dynamic search in dropdowns')."</td><td>";
-//       Dropdown::showNumber('ajax_buffertime_load',
-//                            array('value' => $CFG_GLPI["ajax_buffertime_load"],
-//                                  'min'   => 100,
-//                                  'max'   => 5000,
-//                                  'step'  => 100,
-//                                  'unit'  => 'millisecond'));
       echo "<td colspan='2'></td>";
       echo "</td></tr>";
-
-//      echo "<tr class='tab_bg_2'>";
-//       echo "<td>" . __('Autocompletion of text fields') . "</td><td>";
-//       Dropdown::showYesNo("use_ajax_autocompletion", $CFG_GLPI["use_ajax_autocompletion"]);
-//       echo "</td><td>". __('Character to force the full display of dropdowns (wildcard)')."</td>";
-//       echo "<td><input type='text' size='1' name='ajax_wildcard' value='" .
-//                   $CFG_GLPI["ajax_wildcard"] . "'>";
-//      echo "</td>";
-//      echo "</tr>";
 
       echo "<tr class='tab_bg_1'><td colspan='4' class='center b'>".__('Search engine')."</td></tr>";
       echo "<tr class='tab_bg_2'>";
@@ -398,7 +401,7 @@ class Config extends CommonDBTM {
                                  'display_emptychoice'   => true,
                                  'value'                 => $CFG_GLPI['lock_lockprofile_id']));
       } else {
-         echo dropdown::getDropdownName( Profile::getTable(), $CFG_GLPI['lock_lockprofile_id']) ;
+         echo dropdown::getDropdownName(Profile::getTable(), $CFG_GLPI['lock_lockprofile_id']);
       }
       echo "</td></tr>";
 
@@ -415,7 +418,7 @@ class Config extends CommonDBTM {
       if ($canedit) {
          echo "<tr class='tab_bg_2'>";
          echo "<td colspan='4' class='center'>";
-         echo "<input type='submit' name='update' class='submit' value=\""._sx('button','Save')."\">";
+         echo "<input type='submit' name='update' class='submit' value=\""._sx('button', 'Save')."\">";
          echo "</td></tr>";
       }
 
@@ -850,7 +853,7 @@ class Config extends CommonDBTM {
       echo "<tr class='tab_bg_2'>";
       echo "<td class='b right' colspan='2'>".__('Impact')."</td>";
 
-      for ($impact=5 ; $impact>=1 ; $impact--) {
+      for ($impact=5; $impact>=1; $impact--) {
          echo "<td class='center'>".Ticket::getImpactName($impact).'<br>';
 
          if ($impact==3) {
@@ -868,12 +871,12 @@ class Config extends CommonDBTM {
       echo "<tr class='tab_bg_1'>";
       echo "<td class='b' colspan='2'>".__('Urgency')."</td>";
 
-      for ($impact=5 ; $impact>=1 ; $impact--) {
+      for ($impact=5; $impact>=1; $impact--) {
          echo "<td>&nbsp;</td>";
       }
       echo "</tr>";
 
-      for ($urgency=5 ; $urgency>=1 ; $urgency--) {
+      for ($urgency=5; $urgency>=1; $urgency--) {
          echo "<tr class='tab_bg_1'>";
          echo "<td>".Ticket::getUrgencyName($urgency)."&nbsp;</td>";
          echo "<td>";
@@ -888,13 +891,12 @@ class Config extends CommonDBTM {
          }
          echo "</td>";
 
-         for ($impact=5 ; $impact>=1 ; $impact--) {
+         for ($impact=5; $impact>=1; $impact--) {
             $pri = round(($urgency+$impact)/2);
 
             if (isset($CFG_GLPI['priority_matrix'][$urgency][$impact])) {
                $pri = $CFG_GLPI['priority_matrix'][$urgency][$impact];
             }
-
 
             if ($isurgency[$urgency] && $isimpact[$impact]) {
                $bgcolor=$_SESSION["glpipriority_$pri"];
@@ -912,7 +914,7 @@ class Config extends CommonDBTM {
       if ($canedit) {
          echo "<tr class='tab_bg_2'>";
          echo "<td colspan='7' class='center'>";
-         echo "<input type='submit' name='update' class='submit' value=\""._sx('button','Save')."\">";
+         echo "<input type='submit' name='update' class='submit' value=\""._sx('button', 'Save')."\">";
          echo "</td></tr>";
       }
 
@@ -936,7 +938,7 @@ class Config extends CommonDBTM {
       $userpref  = false;
       $url       = Toolbox::getItemTypeFormURL(__CLASS__);
 
-      if (array_key_exists('last_login',$data)) {
+      if (array_key_exists('last_login', $data)) {
          $userpref = true;
          if ($data["id"] === Session::getLoginUserID()) {
             $url  = $CFG_GLPI['root_doc']."/front/preference.php";
@@ -1006,14 +1008,13 @@ class Config extends CommonDBTM {
 
       echo "</tr>";
 
-
       echo "<tr class='tab_bg_2'>";
       if ($oncentral) {
          echo "<td>" . __('Display the complete name in tree dropdowns') . "</td><td>";
          Dropdown::showYesNo('use_flat_dropdowntree', $data["use_flat_dropdowntree"]);
          echo "</td>";
       } else {
-        echo "<td colspan='2'>&nbsp;</td>";
+         echo "<td colspan='2'>&nbsp;</td>";
       }
 
       if (!$userpref
@@ -1141,7 +1142,7 @@ class Config extends CommonDBTM {
       echo "<td>";
       Dropdown::showYesNo('highcontrast_css', $data['highcontrast_css']);
       echo "</td>";
-      echo "<td>";
+      echo "<td colspan='2'>";
       echo "</td></tr>";
 
       if ($oncentral) {
@@ -1227,9 +1228,6 @@ class Config extends CommonDBTM {
          Dropdown::showYesNo('ticket_timeline_keep_replaced_tabs',
                              $data['ticket_timeline_keep_replaced_tabs']);
          echo "</td></tr>";
-
-
-
       }
 
       // Only for user
@@ -1329,7 +1327,7 @@ class Config extends CommonDBTM {
       echo "<script type='text/javascript' >\n";
       echo "function passwordCheck() {\n";
       echo "var pwd = ".Html::jsGetElementbyID($field).";";
-      echo "if (pwd.value.length < ".$CFG_GLPI['password_min_length'].") {
+      echo "if (pwd.val().length < ".$CFG_GLPI['password_min_length'].") {
             ".Html::jsGetElementByID('password_min_length').".addClass('red');
             ".Html::jsGetElementByID('password_min_length').".removeClass('green');
       } else {
@@ -1340,7 +1338,7 @@ class Config extends CommonDBTM {
       if ($CFG_GLPI["password_need_number"]) {
          $needs[] = "<span id='password_need_number' class='red'>".__('Digit')."</span>";
          echo "var numberRegex = new RegExp('[0-9]', 'g');
-         if (false == numberRegex.test(pwd.value)) {
+         if (false == numberRegex.test(pwd.val())) {
                ".Html::jsGetElementByID('password_need_number').".addClass('red');
                ".Html::jsGetElementByID('password_need_number').".removeClass('green');
          } else {
@@ -1351,7 +1349,7 @@ class Config extends CommonDBTM {
       if ($CFG_GLPI["password_need_letter"]) {
          $needs[] = "<span id='password_need_letter' class='red'>".__('Lowercase')."</span>";
          echo "var letterRegex = new RegExp('[a-z]', 'g');
-         if (false == letterRegex.test(pwd.value)) {
+         if (false == letterRegex.test(pwd.val())) {
                ".Html::jsGetElementByID('password_need_letter').".addClass('red');
                ".Html::jsGetElementByID('password_need_letter').".removeClass('green');
          } else {
@@ -1362,7 +1360,7 @@ class Config extends CommonDBTM {
       if ($CFG_GLPI["password_need_caps"]) {
          $needs[] = "<span id='password_need_caps' class='red'>".__('Uppercase')."</span>";
          echo "var capsRegex = new RegExp('[A-Z]', 'g');
-         if (false == capsRegex.test(pwd.value)) {
+         if (false == capsRegex.test(pwd.val())) {
                ".Html::jsGetElementByID('password_need_caps').".addClass('red');
                ".Html::jsGetElementByID('password_need_caps').".removeClass('green');
          } else {
@@ -1373,7 +1371,7 @@ class Config extends CommonDBTM {
       if ($CFG_GLPI["password_need_symbol"]) {
          $needs[] = "<span id='password_need_symbol' class='red'>".__('Symbol')."</span>";
          echo "var capsRegex = new RegExp('[^a-zA-Z0-9_]', 'g');
-         if (false == capsRegex.test(pwd.value)) {
+         if (false == capsRegex.test(pwd.val())) {
                ".Html::jsGetElementByID('password_need_symbol').".addClass('red');
                ".Html::jsGetElementByID('password_need_symbol').".removeClass('green');
          } else {
@@ -1385,7 +1383,7 @@ class Config extends CommonDBTM {
       echo '</script>';
       if (count($needs)) {
          echo "<br>";
-         printf(__('%1$s: %2$s'), __('Password must contains'), implode(', ',$needs));
+         printf(__('%1$s: %2$s'), __('Password must contains'), implode(', ', $needs));
       }
    }
 
@@ -1522,7 +1520,7 @@ class Config extends CommonDBTM {
 
       echo "<tr><th colspan='4'>" . __('User data cache') . "</th></tr>";
       $ext = (PHP_MAJOR_VERSION < 7 ? 'APCu' : 'apcu-bc');
-      if (function_exists('apc_fetch')) {
+      if (function_exists('apc_fetch') && ini_get('apc.enabled')) {
          echo "<tr><td>" . sprintf(__('The "%s" extension is installed'), $ext) . "</td>
                <td>" . phpversion('apc') . "</td>
                <td></td>
@@ -1721,13 +1719,12 @@ class Config extends CommonDBTM {
       echo "GLPI $ver (" . $CFG_GLPI['root_doc']." => " . GLPI_ROOT . ")\n";
       echo "\n</pre></td></tr>";
 
-
       echo "<tr><th>Server</th></tr>\n";
       echo "<tr class='tab_bg_1'><td><pre>\n&nbsp;\n";
       echo wordwrap("Operating system: ".php_uname()."\n", $width, "\n\t");
       $exts = get_loaded_extensions();
       sort($exts);
-      echo wordwrap("PHP ".phpversion().' '.php_sapi_name()." (".implode(', ',$exts).")\n",
+      echo wordwrap("PHP ".phpversion().' '.php_sapi_name()." (".implode(', ', $exts).")\n",
                     $width, "\n\t");
       $msg = "Setup: ";
 
@@ -1805,11 +1802,13 @@ class Config extends CommonDBTM {
       if (is_object($libstring)) {
          return realpath(dirname((new ReflectionObject($libstring))->getFileName()));
 
-      } elseif (class_exists($libstring)) {
+      } else if (class_exists($libstring)) {
          return realpath(dirname((new ReflectionClass($libstring))->getFileName()));
 
-      } elseif (function_exists($libstring)) {
-         return realpath(dirname((new ReflectionFunction($libstring))->getFileName()));
+      } else if (function_exists($libstring)) {
+         // Internal function have no file name
+         $path = (new ReflectionFunction($libstring))->getFileName();
+         return ($path ? realpath(dirname($path)) : false);
 
       }
       return false;
@@ -1829,49 +1828,50 @@ class Config extends CommonDBTM {
       echo "<tr class='tab_bg_1'><td><pre>\n&nbsp;\n";
 
       include_once(GLPI_HTMLAWED);
-      echo "htmLawed version ".hl_version().
-           " in (".self::getLibraryDir("hl_version").")\n";
-
-      echo "phpCas version ".phpCAS::getVersion().
-           " in (".(self::getLibraryDir("phpCAS")
-                     ? self::getLibraryDir("phpCAS")
-                     : "system").
-           ")\n";
-
-
       $pm = new PHPMailer();
-      echo "PHPMailer version ".$pm->Version.
-           " in (" . self::getLibraryDir("PHPMailer") . ")\n";
-
-      // EZ component
-      echo "ZetaComponent ezcGraph installed in (".self::getLibraryDir("ezcGraph")."): ".
-           (class_exists('ezcGraph') ? 'OK' : 'KO'). "\n";
-
-      // Zend
-      echo "Zend Framework in (".self::getLibraryDir("Zend\Loader\StandardAutoloader").")\n";
-
-      // SimplePie :
       $sp = new SimplePie();
-      echo "SimplePie version ".SIMPLEPIE_VERSION.
-           " in (".self::getLibraryDir($sp).")\n";
 
-      // TCPDF
-      echo "TCPDF version ".TCPDF_STATIC::getTCPDFVersion().
-           " in (".self::getLibraryDir("TCPDF").")\n";
+      $deps = [[ 'name'    => 'htmLawed',
+                 'version' => hl_version() ,
+                 'check'   => 'hl_version' ],
+               [ 'name'    => 'phpCas',
+                 'version' => phpCAS::getVersion() ,
+                 'check'   => 'phpCAS' ],
+               [ 'name'    => 'PHPMailer',
+                 'version' => $pm->Version ,
+                 'check'   => 'PHPMailer' ],
+               [ 'name'    => 'Zend Framework',
+                 'check'   => 'Zend\\Loader\\StandardAutoloader' ],
+               [ 'name'    => 'SimplePie',
+                 'version' => SIMPLEPIE_VERSION,
+                 'check'   => $sp ],
+               [ 'name'    => 'TCPDF',
+                 'version' => TCPDF_STATIC::getTCPDFVersion(),
+                 'check'   => 'TCPDF' ],
+               [ 'name'    => 'ircmaxell/password-compat',
+                 'check'   => 'password_hash' ],
+               [ 'name'    => 'ramsey/array_column',
+                 'check'   => 'array_column' ],
+               [ 'name'    => 'michelf/php-markdown',
+                 'check'   => 'Michelf\\Markdown' ],
+               [ 'name'    => 'true/punycode',
+                 'check'   => 'TrueBV\\Punycode' ],
+               [ 'name'    => 'iacaml/autolink',
+                 'check'   => 'autolink' ],
+               [ 'name'    => 'sabre/vobject',
+                 'check'   => 'Sabre\\VObject\\Component' ],
+      ];
 
-      // password_compat
-      $check = (PasswordCompat\binary\check() ? "Ok" : "KO");
-      echo "ircmaxell/password-compat in (".
-           self::getLibraryDir("PasswordCompat\binary\check")."). Compatitility: $check\n";
-
-      // autolink
-      echo "iacaml/autolink in (".self::getLibraryDir("autolink").")\n";
-
-      // sabre/vobject
-      echo "sabre/vobject in (".self::getLibraryDir("Sabre\VObject\Component").")\n";
-
-      // vcard
-      echo "guzzlehttp/guzzle in (".self::getLibraryDir("JeroenDesloovere\VCard\VCard").")\n";
+      foreach ($deps as $dep) {
+         $path = self::getLibraryDir($dep['check']);
+         if ($path) {
+            echo "{$dep['name']} ";
+            if (isset($dep['version'])) {
+               echo "version {$dep['version']} ";
+            }
+            echo "in ($path)\n";
+         }
+      }
 
       echo "\n</pre></td></tr>";
    }
@@ -1888,7 +1888,7 @@ class Config extends CommonDBTM {
       $choices[0] = __('Yes - Restrict to unit management for manual add');
       $choices[1] = __('Yes - Restrict to global management for manual add');
       $choices[2] = __('No');
-      Dropdown::showFromArray($name,$choices,array('value'=>$value));
+      Dropdown::showFromArray($name, $choices, array('value'=>$value));
    }
 
 
@@ -1907,23 +1907,23 @@ class Config extends CommonDBTM {
       //                   / extjs dico / tinymce dico
       // ID  or extjs dico or tinymce dico
       foreach ($CFG_GLPI["languages"] as $ID => $language) {
-         if ((strcasecmp($lang,$ID) == 0)
-             || (strcasecmp($lang,$language[2]) == 0)
-             || (strcasecmp($lang,$language[3]) == 0)) {
+         if ((strcasecmp($lang, $ID) == 0)
+             || (strcasecmp($lang, $language[2]) == 0)
+             || (strcasecmp($lang, $language[3]) == 0)) {
             return $ID;
          }
       }
 
       // native lang
       foreach ($CFG_GLPI["languages"] as $ID => $language) {
-         if (strcasecmp($lang,$language[0]) == 0) {
+         if (strcasecmp($lang, $language[0]) == 0) {
             return $ID;
          }
       }
 
       // english lang name
       foreach ($CFG_GLPI["languages"] as $ID => $language) {
-         if (strcasecmp($lang,$language[4]) == 0) {
+         if (strcasecmp($lang, $language[4]) == 0) {
             return $ID;
          }
       }
@@ -1936,25 +1936,25 @@ class Config extends CommonDBTM {
       global $CFG_GLPI;
 
       if (!isset($CFG_GLPI["root_doc"])) {
-         if (!isset($_SERVER['REQUEST_URI']) ) {
+         if (!isset($_SERVER['REQUEST_URI'])) {
             $_SERVER['REQUEST_URI'] = $_SERVER['PHP_SELF'];
          }
 
          $currentdir = getcwd();
          chdir(GLPI_ROOT);
-         $glpidir    = str_replace(str_replace('\\', '/',getcwd()), "",
-                                   str_replace('\\', '/',$currentdir));
+         $glpidir    = str_replace(str_replace('\\', '/', getcwd()), "",
+                                   str_replace('\\', '/', $currentdir));
          chdir($currentdir);
          $globaldir  = Html::cleanParametersURL($_SERVER['REQUEST_URI']);
-         $globaldir  = preg_replace("/\/[0-9a-zA-Z\.\-\_]+\.php/","",$globaldir);
+         $globaldir  = preg_replace("/\/[0-9a-zA-Z\.\-\_]+\.php/", "", $globaldir);
 
          // api exception
          if (strpos($globaldir, 'api/') !== false) {
             $globaldir = preg_replace("/(.*\/)api\/.*/", "$1", $globaldir);
          }
 
-         $CFG_GLPI["root_doc"] = str_replace($glpidir,"",$globaldir);
-         $CFG_GLPI["root_doc"] = preg_replace("/\/$/","",$CFG_GLPI["root_doc"]);
+         $CFG_GLPI["root_doc"] = str_replace($glpidir, "", $globaldir);
+         $CFG_GLPI["root_doc"] = preg_replace("/\/$/", "", $CFG_GLPI["root_doc"]);
          // urldecode for space redirect to encoded URL : change entity
          $CFG_GLPI["root_doc"] = urldecode($CFG_GLPI["root_doc"]);
       }

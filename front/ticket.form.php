@@ -1,39 +1,40 @@
 <?php
-/*
- * @version $Id$
- -------------------------------------------------------------------------
- GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2015 Teclib'.
-
- http://glpi-project.org
-
- based on GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2003-2014 by the INDEPNET Development Team.
-
- -------------------------------------------------------------------------
-
- LICENSE
-
- This file is part of GLPI.
-
- GLPI is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
-
- GLPI is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with GLPI. If not, see <http://www.gnu.org/licenses/>.
- --------------------------------------------------------------------------
+/**
+ * ---------------------------------------------------------------------
+ * GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2015-2017 Teclib' and contributors.
+ *
+ * http://glpi-project.org
+ *
+ * based on GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2003-2014 by the INDEPNET Development Team.
+ *
+ * ---------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of GLPI.
+ *
+ * GLPI is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * GLPI is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GLPI. If not, see <http://www.gnu.org/licenses/>.
+ * ---------------------------------------------------------------------
  */
 
 /** @file
 * @brief
 */
+
+use Glpi\Event;
 
 include ('../inc/includes.php');
 
@@ -58,6 +59,24 @@ if (isset($_POST["add"])) {
    $track->check($_POST['id'], UPDATE);
 
    $track->update($_POST);
+
+   if (isset($_POST['kb_linked_id'])) {
+      //if solution should be linked to selected KB entry
+      $params = [
+         'knowbaseitems_id' => $_POST['kb_linked_id'],
+         'itemtype'         => $track->getType(),
+         'items_id'         => $track->getID()
+      ];
+      $existing = $DB->request(
+         'glpi_knowbaseitems_items',
+         $params
+      );
+      if ($existing->numrows() == 0) {
+         $kb_item_item = new KnowbaseItem_Item();
+         $kb_item_item->add($params);
+      }
+   }
+
    Event::log($_POST["id"], "ticket", 4, "tracking",
               //TRANS: %s is the user login
               sprintf(__('%s updates an item'), $_SESSION["glpiname"]));
@@ -141,14 +160,17 @@ if (isset($_POST["add"])) {
               sprintf(__('%s adds an actor'), $_SESSION["glpiname"]));
    Html::redirect($CFG_GLPI["root_doc"]."/front/ticket.form.php?id=".$_POST['tickets_id']);
 } else if (isset($_REQUEST['delete_document'])) {
-   $document_item = new Document_Item;
-   $found_document_items = $document_item->find("itemtype = 'Ticket' ".
-                                                " AND items_id = ".intval($_REQUEST['tickets_id']).
-                                                " AND documents_id = ".intval($_REQUEST['documents_id']));
-   foreach ($found_document_items  as $item) {
-      $document_item->delete($item, true);
+   $doc = new Document();
+   $doc->getFromDB(intval($_REQUEST['documents_id']));
+   if ($doc->can($doc->getID(), UPDATE)) {
+      $document_item = new Document_Item;
+      $found_document_items = $document_item->find("itemtype = 'Ticket' ".
+                                                   " AND items_id = ".intval($_REQUEST['tickets_id']).
+                                                   " AND documents_id = ".$doc->getID());
+      foreach ($found_document_items  as $item) {
+         $document_item->delete($item, true);
+      }
    }
-
    Html::back();
 }
 
@@ -182,10 +204,17 @@ if (isset($_GET["id"]) && ($_GET["id"] > 0)) {
    }
 
 } else {
-   Html::header(__('New ticket'),'',"helpdesk","ticket");
+   Html::header(__('New ticket'), '', "helpdesk", "ticket");
    unset($_REQUEST['id']);
+   // alternative email must be empty for create ticket
+   unset($_REQUEST['_users_id_requester_notif']['alternative_email']);
+   unset($_REQUEST['_users_id_observer_notif']['alternative_email']);
+   unset($_REQUEST['_users_id_assign_notif']['alternative_email']);
+   unset($_REQUEST['_suppliers_id_assign_notif']['alternative_email']);
    // Add a ticket from item : format data
-   if (isset($_REQUEST['_add_fromitem'])) {
+   if (isset($_REQUEST['_add_fromitem'])
+       && isset($_REQUEST['itemtype'])
+       && isset($_REQUEST['items_id'])) {
       $_REQUEST['items_id'] = array($_REQUEST['itemtype'] => array($_REQUEST['items_id']));
    }
    $track->display($_REQUEST);
@@ -197,4 +226,3 @@ if ($_SESSION["glpiactiveprofile"]["interface"] == "helpdesk") {
 } else {
    Html::footer();
 }
-?>

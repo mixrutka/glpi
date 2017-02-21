@@ -1,34 +1,33 @@
 <?php
-/*
- * @version $Id$
- -------------------------------------------------------------------------
- GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2015 Teclib'.
-
- http://glpi-project.org
-
- based on GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2003-2014 by the INDEPNET Development Team.
-
- -------------------------------------------------------------------------
-
- LICENSE
-
- This file is part of GLPI.
-
- GLPI is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
-
- GLPI is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with GLPI. If not, see <http://www.gnu.org/licenses/>.
- --------------------------------------------------------------------------
+/**
+ * ---------------------------------------------------------------------
+ * GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2015-2017 Teclib' and contributors.
+ *
+ * http://glpi-project.org
+ *
+ * based on GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2003-2014 by the INDEPNET Development Team.
+ *
+ * ---------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of GLPI.
+ *
+ * GLPI is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * GLPI is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GLPI. If not, see <http://www.gnu.org/licenses/>.
+ * ---------------------------------------------------------------------
  */
 
 /** @file
@@ -72,7 +71,7 @@ class ComputerDisk extends CommonDBChild {
          $nb = 0;
          if ($_SESSION['glpishow_count_on_tabs']) {
             $nb = countElementsInTable('glpi_computerdisks',
-                                       "computers_id = '".$item->getID()."' AND `is_deleted`='0'");
+                                       ['computers_id' => $item->getID(), 'is_deleted' => 0 ]);
          }
          return self::createTabEntry(self::getTypeName(Session::getPluralNumber()), $nb);
       }
@@ -102,7 +101,7 @@ class ComputerDisk extends CommonDBChild {
       $ong = array();
       $this->addDefaultFormTab($ong);
       $this->addStandardTab('Log', $ong, $options);
-      
+
       return $ong;
    }
 
@@ -235,7 +234,6 @@ class ComputerDisk extends CommonDBChild {
       }
       $canedit = $comp->canEdit($ID);
 
-
       if ($canedit
           && !(!empty($withtemplate) && ($withtemplate == 2))) {
          echo "<div class='center firstbloc'>".
@@ -323,4 +321,3 @@ class ComputerDisk extends CommonDBChild {
    }
 
 }
-?>

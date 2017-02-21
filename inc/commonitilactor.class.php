@@ -1,33 +1,33 @@
 <?php
-/*
- -------------------------------------------------------------------------
- GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2015-2016 Teclib'.
-
- http://glpi-project.org
-
- based on GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2003-2014 by the INDEPNET Development Team.
-
- -------------------------------------------------------------------------
-
- LICENSE
-
- This file is part of GLPI.
-
- GLPI is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
-
- GLPI is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with GLPI. If not, see <http://www.gnu.org/licenses/>.
- --------------------------------------------------------------------------
+/**
+ * ---------------------------------------------------------------------
+ * GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2015-2017 Teclib' and contributors.
+ *
+ * http://glpi-project.org
+ *
+ * based on GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2003-2014 by the INDEPNET Development Team.
+ *
+ * ---------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of GLPI.
+ *
+ * GLPI is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * GLPI is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GLPI. If not, see <http://www.gnu.org/licenses/>.
+ * ---------------------------------------------------------------------
  */
 
 /** @file
@@ -202,7 +202,7 @@ abstract class CommonITILActor extends CommonDBRelation {
                $emailtab[''] = $new_email;
             }
          }
-         Dropdown::showFromArray("alternative_email",$emailtab,
+         Dropdown::showFromArray("alternative_email", $emailtab,
                                  array('value'   => $this->fields['alternative_email']));
       } else {
          echo "<input type='text' size='40' name='alternative_email' value='".
@@ -212,7 +212,7 @@ abstract class CommonITILActor extends CommonDBRelation {
 
       echo "<tr class='tab_bg_2'>";
       echo "<td class='center' colspan='2'>";
-      echo "<input type='submit' name='update' value=\""._sx('button','Save')."\" class='submit'>";
+      echo "<input type='submit' name='update' value=\""._sx('button', 'Save')."\" class='submit'>";
       echo "<input type='hidden' name='id' value='$ID'>";
       echo "</td></tr>";
 
@@ -276,7 +276,7 @@ abstract class CommonITILActor extends CommonDBRelation {
 
       echo "<tr class='tab_bg_2'>";
       echo "<td class='center' colspan='2'>";
-      echo "<input type='submit' name='update' value=\""._sx('button','Save')."\" class='submit'>";
+      echo "<input type='submit' name='update' value=\""._sx('button', 'Save')."\" class='submit'>";
       echo "<input type='hidden' name='id' value='$ID'>";
       echo "</td></tr>";
 
@@ -289,10 +289,6 @@ abstract class CommonITILActor extends CommonDBRelation {
       global $CFG_GLPI;
 
       $donotif = $CFG_GLPI["use_mailing"];
-
-//       if (isset($this->input["_no_notif"]) && $this->input["_no_notif"]) {
-//          $donotif = false;
-//       }
 
       $item = $this->getConnexityItem(static::$itemtype_1, static::getItilObjectForeignKey());
 

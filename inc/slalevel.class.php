@@ -1,34 +1,33 @@
 <?php
-/*
- * @version $Id$
- -------------------------------------------------------------------------
- GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2015 Teclib'.
-
- http://glpi-project.org
-
- based on GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2003-2014 by the INDEPNET Development Team.
-
- -------------------------------------------------------------------------
-
- LICENSE
-
- This file is part of GLPI.
-
- GLPI is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
-
- GLPI is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with GLPI. If not, see <http://www.gnu.org/licenses/>.
- --------------------------------------------------------------------------
+/**
+ * ---------------------------------------------------------------------
+ * GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2015-2017 Teclib' and contributors.
+ *
+ * http://glpi-project.org
+ *
+ * based on GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2003-2014 by the INDEPNET Development Team.
+ *
+ * ---------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of GLPI.
+ *
+ * GLPI is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * GLPI is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GLPI. If not, see <http://www.gnu.org/licenses/>.
+ * ---------------------------------------------------------------------
  */
 
 /** @file
@@ -209,7 +208,7 @@ class SlaLevel extends RuleTicket {
          echo "</tr>";
 
          echo "<tr class='tab_bg_1'><td colspan='2'>";
-         $this->getRuleWithCriteriasAndActions($data['id'],1,1);
+         $this->getRuleWithCriteriasAndActions($data['id'], 1, 1);
          $this->showCriteriasList($data["id"], array('readonly' => true));
          echo "</td><td colspan='2'>";
          $this->showActionsList($data["id"], array('readonly' => true));
@@ -281,7 +280,7 @@ class SlaLevel extends RuleTicket {
    **/
    function showForm($ID, $options=array()) {
 
-      $canedit = $this->can('sla',UPDATE);
+      $canedit = $this->can('sla', UPDATE);
 
       $this->initForm($ID, $options);
       $this->showFormHeader($options);
@@ -355,40 +354,40 @@ class SlaLevel extends RuleTicket {
       }
 
       $possible_values = array();
-      for ($i=10 ; $i<60 ; $i+=10) {
-         if (!in_array($i*MINUTE_TIMESTAMP,$p['used'])) {
-            $possible_values[$i*MINUTE_TIMESTAMP] = sprintf(_n('+ %d minute','+ %d minutes',$i), $i);
+      for ($i=10; $i<60; $i+=10) {
+         if (!in_array($i*MINUTE_TIMESTAMP, $p['used'])) {
+            $possible_values[$i*MINUTE_TIMESTAMP] = sprintf(_n('+ %d minute', '+ %d minutes', $i), $i);
          }
-         if (!in_array(-$i*MINUTE_TIMESTAMP,$p['used'])) {
+         if (!in_array(-$i*MINUTE_TIMESTAMP, $p['used'])) {
             if ($p['max_time'] >= $i*MINUTE_TIMESTAMP) {
-               $possible_values[-$i*MINUTE_TIMESTAMP] = sprintf(_n('- %d minute','- %d minutes',$i), $i);
+               $possible_values[-$i*MINUTE_TIMESTAMP] = sprintf(_n('- %d minute', '- %d minutes', $i), $i);
             }
          }
       }
 
-      for ($i=1 ; $i<24 ; $i++) {
-         if (!in_array($i*HOUR_TIMESTAMP,$p['used'])) {
-            $possible_values[$i*HOUR_TIMESTAMP] = sprintf(_n('+ %d hour','+ %d hours',$i), $i);
+      for ($i=1; $i<24; $i++) {
+         if (!in_array($i*HOUR_TIMESTAMP, $p['used'])) {
+            $possible_values[$i*HOUR_TIMESTAMP] = sprintf(_n('+ %d hour', '+ %d hours', $i), $i);
          }
-         if (!in_array(-$i*HOUR_TIMESTAMP,$p['used'])) {
+         if (!in_array(-$i*HOUR_TIMESTAMP, $p['used'])) {
             if ($p['max_time'] >= $i*HOUR_TIMESTAMP) {
-               $possible_values[-$i*HOUR_TIMESTAMP] = sprintf(_n('- %d hour','- %d hours',$i),
+               $possible_values[-$i*HOUR_TIMESTAMP] = sprintf(_n('- %d hour', '- %d hours', $i),
                                                               $i);
             }
          }
       }
 
-      for ($i=1 ; $i<30 ; $i++) {
-         if (!in_array($i*DAY_TIMESTAMP,$p['used'])) {
-            $possible_values[$i*DAY_TIMESTAMP] = sprintf(_n('+ %d day','+ %d days',$i), $i);
+      for ($i=1; $i<30; $i++) {
+         if (!in_array($i*DAY_TIMESTAMP, $p['used'])) {
+            $possible_values[$i*DAY_TIMESTAMP] = sprintf(_n('+ %d day', '+ %d days', $i), $i);
          }
-         if (!in_array(-$i*DAY_TIMESTAMP,$p['used'])) {
+         if (!in_array(-$i*DAY_TIMESTAMP, $p['used'])) {
             if ($p['max_time'] >= $i*DAY_TIMESTAMP) {
-               $possible_values[-$i*DAY_TIMESTAMP] = sprintf(_n('- %d day','- %d days',$i), $i);
+               $possible_values[-$i*DAY_TIMESTAMP] = sprintf(_n('- %d day', '- %d days', $i), $i);
             }
          }
       }
-      if (!in_array(0,$p['used'])) {
+      if (!in_array(0, $p['used'])) {
          $possible_values[0] = __('Time to resolve');
       }
       ksort($possible_values);
@@ -439,7 +438,7 @@ class SlaLevel extends RuleTicket {
 
       if ($result = $DB->query($query)) {
          if ($DB->numrows($result)) {
-            return $DB->result($result,0,0);
+            return $DB->result($result, 0, 0);
          }
       }
       return 0;
@@ -463,7 +462,7 @@ class SlaLevel extends RuleTicket {
 
       if ($result = $DB->query($query)) {
          if ($DB->numrows($result)) {
-            $execution_time = $DB->result($result,0,0);
+            $execution_time = $DB->result($result, 0, 0);
 
             $query = "SELECT `id`
                       FROM `glpi_slalevels`
@@ -471,11 +470,11 @@ class SlaLevel extends RuleTicket {
                              AND `id` <> '$slalevels_id'
                              AND `execution_time` > '$execution_time'
                              AND `is_active` = 1
-                      ORDER BY `execution_time` ASC LIMIT 1 ;";
+                      ORDER BY `execution_time` ASC LIMIT 1;";
 
             if ($result = $DB->query($query)) {
                if ($DB->numrows($result)) {
-                  return $DB->result($result,0,0);
+                  return $DB->result($result, 0, 0);
                }
             }
          }
@@ -491,7 +490,7 @@ class SlaLevel extends RuleTicket {
          switch ($item->getType()) {
             case 'SLT' :
                if ($_SESSION['glpishow_count_on_tabs']) {
-                  $nb =  countElementsInTable($this->getTable(), "`slts_id` = '".$item->getID()."'");
+                  $nb =  countElementsInTable($this->getTable(), ['slts_id' => $item->getID()]);
                }
                return self::createTabEntry(self::getTypeName(Session::getPluralNumber()), $nb);
          }
@@ -510,4 +509,3 @@ class SlaLevel extends RuleTicket {
    }
 
 }
-?>

@@ -1,38 +1,41 @@
 <?php
-/*
- -------------------------------------------------------------------------
- GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2015-2016 Teclib'.
-
- http://glpi-project.org
-
- based on GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2003-2014 by the INDEPNET Development Team.
-
- -------------------------------------------------------------------------
-
- LICENSE
-
- This file is part of GLPI.
-
- GLPI is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
-
- GLPI is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with GLPI. If not, see <http://www.gnu.org/licenses/>.
- --------------------------------------------------------------------------
+/**
+ * ---------------------------------------------------------------------
+ * GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2015-2017 Teclib' and contributors.
+ *
+ * http://glpi-project.org
+ *
+ * based on GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2003-2014 by the INDEPNET Development Team.
+ *
+ * ---------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of GLPI.
+ *
+ * GLPI is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * GLPI is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GLPI. If not, see <http://www.gnu.org/licenses/>.
+ * ---------------------------------------------------------------------
  */
 
 /** @file
 * @brief
 */
+
+use Glpi\Event;
+
 if (!defined('GLPI_ROOT')) {
    die("Sorry. You can't access this file directly");
 }
@@ -127,8 +130,7 @@ class RuleCollection extends CommonDBTM {
 
       if ($p['active']) {
          $sql_active = " `is_active` = '1'";
-      }
-      else {
+      } else {
          $sql_active = "1";
       }
 
@@ -150,7 +152,7 @@ class RuleCollection extends CommonDBTM {
                                                $p['inherited']);
          } else {
             $sons = getSonsOf('glpi_entities', $this->entity);
-            $sql .= " AND `glpi_rules`.`entities_id` IN (".implode(',',$sons).")";
+            $sql .= " AND `glpi_rules`.`entities_id` IN (".implode(',', $sons).")";
          }
          $sql .= " ORDER BY `glpi_entities`.`level` ASC,
                             `".$this->orderby."` ASC";
@@ -320,7 +322,7 @@ class RuleCollection extends CommonDBTM {
    }
 
 
-  /**
+   /**
     * Indicates if the rule can be affected to an entity or if it's global
    **/
    function isRuleRecursive() {
@@ -329,7 +331,7 @@ class RuleCollection extends CommonDBTM {
       return $rule->maybeRecursive();
    }
 
-  /**
+   /**
     * Indicates if the rule use conditions
    **/
    function isRuleUseConditions() {
@@ -338,7 +340,7 @@ class RuleCollection extends CommonDBTM {
       return $rule->useConditions();
    }
 
-  /**
+   /**
     * Indicates if the rule use conditions
    **/
    function getDefaultRuleConditionForList() {
@@ -395,7 +397,6 @@ class RuleCollection extends CommonDBTM {
    **/
    function showListRules($target, $options=array()) {
       global $CFG_GLPI;
-
 
       $p['inherited'] = 1;
       $p['childrens'] = 0;
@@ -498,7 +499,7 @@ class RuleCollection extends CommonDBTM {
          Session::initNavigateListItems($ruletype);
       }
 
-      for ($i=$p['start'],$j=0 ; isset($this->RuleList->list[$j]) ; $i++,$j++) {
+      for ($i=$p['start'],$j=0; isset($this->RuleList->list[$j]); $i++,$j++) {
          $this->RuleList->list[$j]->showMinimalForm($target, $i==0, $i==$nb-1, $display_entities, $p['condition']);
          Session::addToNavigateListItems($ruletype, $this->RuleList->list[$j]->fields['id']);
       }
@@ -545,7 +546,7 @@ class RuleCollection extends CommonDBTM {
       }
 
       echo "<a class='vsubmit' href='#' onClick=\"".
-                  Html::jsGetElementbyID('allruletest'.$rand).".dialog('open');\">".
+                  Html::jsGetElementbyID('allruletest'.$rand).".dialog('open'); return false;\">".
                   __('Test rules engine')."</a>";
       Ajax::createIframeModalWindow('allruletest'.$rand,
                                     $url."/front/rulesengine.test.php?".
@@ -885,7 +886,7 @@ class RuleCollection extends CommonDBTM {
    **/
    static function exportRulesToXML($items=array()) {
 
-      if (!count($items) ) {
+      if (!count($items)) {
          return false;
       }
 
@@ -994,7 +995,7 @@ class RuleCollection extends CommonDBTM {
       echo "<h2>".__("Import rules from a XML file")."</h2>";
       echo "<input type='file' name='xml_file'>&nbsp;";
       echo "<input type='hidden' name='action' value='preview_import'>";
-      echo "<input type='submit' name='import' value=\""._sx('button','Import').
+      echo "<input type='submit' name='import' value=\""._sx('button', 'Import').
              "\" class='submit'>";
 
       // Close for Form
@@ -1278,7 +1279,6 @@ class RuleCollection extends CommonDBTM {
          echo "</td></tr>";
       }
 
-
       //display buttons
       $class = ($odd?" class='tab_bg_1' ":" class='tab_bg_2' ");
       echo "<tr $class><td colspan='3' class='center'>";
@@ -1342,7 +1342,6 @@ class RuleCollection extends CommonDBTM {
          unset($params['rulecriteria']);
          unset($params['ruleaction']);
 
-
          if (!$item->isEntityAssign()) {
             $params['entities_id'] = 0;
          } else {
@@ -1394,7 +1393,9 @@ class RuleCollection extends CommonDBTM {
                   $criteria['rules_id'] = $rules_id;
                   //fix array in value key
                   //(simplexml bug, empty xml node are converted in empty array instead of null)
-                  if (is_array($criteria['pattern'])) $criteria['pattern'] = null;
+                  if (is_array($criteria['pattern'])) {
+                     $criteria['pattern'] = null;
+                  }
                   $criteria = Toolbox::addslashes_deep($criteria);
                   $ruleCriteria->add($criteria);
                }
@@ -1406,7 +1407,9 @@ class RuleCollection extends CommonDBTM {
                   $action['rules_id'] = $rules_id;
                   //fix array in value key
                   //(simplexml bug, empty xml node are converted in empty array instead of null)
-                  if (is_array($action['value'])) $action['value'] = null;
+                  if (is_array($action['value'])) {
+                     $action['value'] = null;
+                  }
                   $action = Toolbox::addslashes_deep($action);
                   $ruleAction->add($action);
                }
@@ -1444,7 +1447,7 @@ class RuleCollection extends CommonDBTM {
       }
 
       // Get Collection datas
-      $this->getCollectionDatas(1,1, $p['condition']);
+      $this->getCollectionDatas(1, 1, $p['condition']);
       $input                      = $this->prepareInputDataForProcessWithPlugins($input, $params);
       $output["_no_rule_matches"] = true;
       //Store rule type being processed (for plugins)
@@ -1516,7 +1519,7 @@ class RuleCollection extends CommonDBTM {
          $rule->showSpecificCriteriasForPreview($_POST);
 
          echo "<tr><td class='tab_bg_2 center' colspan='2'>";
-         echo "<input type='submit' name='test_all_rules' value='". _sx('button','Test')."'
+         echo "<input type='submit' name='test_all_rules' value='". _sx('button', 'Test')."'
                 class='submit'>";
          echo "<input type='hidden' name='sub_type' value='" . $this->getRuleClassName() . "'>";
          echo "<input type='hidden' name='condition' value='$condition'>";
@@ -1716,7 +1719,7 @@ class RuleCollection extends CommonDBTM {
       echo "<br><table class='tab_cadrehov'>";
       $this->showTestResults($rule, $output, $global_result);
       echo "</table></div>";
-}
+   }
 
 
    /**

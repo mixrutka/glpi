@@ -1,33 +1,33 @@
 <?php
-/*
--------------------------------------------------------------------------
-GLPI - Gestionnaire Libre de Parc Informatique
-Copyright (C) 2015 Teclib'.
-
-http://glpi-project.org
-
-based on GLPI - Gestionnaire Libre de Parc Informatique
-Copyright (C) 2003-2014 by the INDEPNET Development Team.
-
--------------------------------------------------------------------------
-
-LICENSE
-
-This file is part of GLPI.
-
-GLPI is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-GLPI is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with GLPI. If not, see <http://www.gnu.org/licenses/>.
---------------------------------------------------------------------------
+/**
+ * ---------------------------------------------------------------------
+ * GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2015-2017 Teclib' and contributors.
+ *
+ * http://glpi-project.org
+ *
+ * based on GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2003-2014 by the INDEPNET Development Team.
+ *
+ * ---------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of GLPI.
+ *
+ * GLPI is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * GLPI is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GLPI. If not, see <http://www.gnu.org/licenses/>.
+ * ---------------------------------------------------------------------
  */
 
 
@@ -119,7 +119,7 @@ class NotificationTargetObjectLock extends NotificationTarget {
       $this->datas['##objectlock.id##']       = $options['item']->fields['items_id'];
       $this->datas['##objectlock.type##']     = $options['item']->fields['itemtype'];
       $this->datas['##objectlock.date_mod##'] = Html::convDateTime($options['item']->fields['date_mod'],
-                                                                   $user->fields['date_format'] ) ;
+                                                                   $user->fields['date_format']);
       $this->datas['##objectlock.lockedby.lastname##']
                                               = $user->fields['realname'];
       $this->datas['##objectlock.lockedby.firstname##']
@@ -130,7 +130,7 @@ class NotificationTargetObjectLock extends NotificationTarget {
                                               = $_SESSION['glpifirstname'];
       $this->datas['##objectlock.url##']      = $CFG_GLPI['url_base']."/?redirect=".
                                                    $options['item']->fields['itemtype']. "_".
-                                                   $options['item']->fields['items_id'] ;
+                                                   $options['item']->fields['items_id'];
 
       $this->getTags();
       foreach ($this->tag_descriptions[NotificationTarget::TAG_LANGUAGE] as $tag => $values) {
@@ -154,10 +154,10 @@ class NotificationTargetObjectLock extends NotificationTarget {
                          'name'  => formatUserName(0, $_SESSION["glpiname"], $_SESSION["glpirealname"],
                                                    $_SESSION["glpifirstname"]));
       } else {
-         $ret = parent::getSender( $options ) ;
+         $ret = parent::getSender($options);
       }
 
-      return $ret ;
+      return $ret;
    }
 
 }

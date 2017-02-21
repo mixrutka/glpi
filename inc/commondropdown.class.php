@@ -1,34 +1,33 @@
 <?php
-/*
- * @version $Id$
- -------------------------------------------------------------------------
- GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2015 Teclib'.
-
- http://glpi-project.org
-
- based on GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2003-2014 by the INDEPNET Development Team.
-
- -------------------------------------------------------------------------
-
- LICENSE
-
- This file is part of GLPI.
-
- GLPI is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
-
- GLPI is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with GLPI. If not, see <http://www.gnu.org/licenses/>.
- --------------------------------------------------------------------------
+/**
+ * ---------------------------------------------------------------------
+ * GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2015-2017 Teclib' and contributors.
+ *
+ * http://glpi-project.org
+ *
+ * based on GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2003-2014 by the INDEPNET Development Team.
+ *
+ * ---------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of GLPI.
+ *
+ * GLPI is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * GLPI is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GLPI. If not, see <http://www.gnu.org/licenses/>.
+ * ---------------------------------------------------------------------
  */
 
 /** @file
@@ -136,9 +135,17 @@ abstract class CommonDropdown extends CommonDBTM {
 
    /**
     * Return Additional Fields for this type
+    *
+    * @return array
    **/
    function getAdditionalFields() {
-      return array();
+      if (FieldExists($this->getTable(), 'product_number')) {
+         return array(array('name' => 'product_number',
+                            'type' => 'text',
+                            'label' => __('Product Number')));
+      } else {
+         return [];
+      }
    }
 
 
@@ -147,11 +154,11 @@ abstract class CommonDropdown extends CommonDBTM {
       $ong = array();
       $this->addDefaultFormTab($ong);
       if ($this->dohistory) {
-         $this->addStandardTab('Log',$ong, $options);
+         $this->addStandardTab('Log', $ong, $options);
       }
 
       if (DropdownTranslation::canBeTranslated($this)) {
-         $this->addStandardTab('DropdownTranslation',$ong, $options);
+         $this->addStandardTab('DropdownTranslation', $ong, $options);
       }
 
       return $ong;
@@ -176,7 +183,7 @@ abstract class CommonDropdown extends CommonDBTM {
    function displayHeader() {
 
       if (empty($this->third_level_menu)) {
-        $this->third_level_menu = $this->getType();
+         $this->third_level_menu = $this->getType();
       }
       Html::header($this->getTypeName(Session::getPluralNumber()), '', $this->first_level_menu, $this->second_level_menu,
                    $this->third_level_menu);
@@ -392,7 +399,7 @@ abstract class CommonDropdown extends CommonDBTM {
       }
 
       if (isset($_REQUEST['_in_modal'])) {
-        echo "<input type='hidden' name='_in_modal' value='1'>";
+         echo "<input type='hidden' name='_in_modal' value='1'>";
       }
       $this->showFormButtons($options);
 
@@ -413,66 +420,94 @@ abstract class CommonDropdown extends CommonDBTM {
    }
 
 
-   /**
-    * Get search function for the class
-    *
-    * @return array of search option
-   **/
-   function getSearchOptions() {
+   function getSearchOptionsNew() {
+      $tab = [];
 
-      $tab = array();
-      $tab['common']               = __('Characteristics');
+      $tab[] = [
+         'id'   => 'common',
+         'name' => __('Characteristics')
+      ];
 
-      $tab[1]['table']             = $this->getTable();
-      $tab[1]['field']             = 'name';
-      $tab[1]['name']              = __('Name');
-      $tab[1]['datatype']          = 'itemlink';
-      $tab[1]['massiveaction']     = false;
+      $tab[] = [
+         'id'                => '1',
+         'table'             => $this->getTable(),
+         'field'             => 'name',
+         'name'              => __('Name'),
+         'datatype'          => 'itemlink',
+         'massiveaction'     => false
+      ];
 
-      $tab[2]['table']             = $this->getTable();
-      $tab[2]['field']             = 'id';
-      $tab[2]['name']              = __('ID');
-      $tab[2]['massiveaction']     = false;
-      $tab[2]['datatype']          = 'number';
+      $tab[] = [
+         'id'                => '2',
+         'table'             => $this->getTable(),
+         'field'             => 'id',
+         'name'              => __('ID'),
+         'massiveaction'     => false,
+         'datatype'          => 'number'
+      ];
 
-      $tab[16]['table']            = $this->getTable();
-      $tab[16]['field']            = 'comment';
-      $tab[16]['name']             = __('Comments');
-      $tab[16]['datatype']         = 'text';
+      if (FieldExists($this->getTable(), 'product_number')) {
+         $tab[] = [
+            'id'  => '3',
+            'table'  => $this->getTable(),
+            'field'  => 'product_number',
+            'name'   => __('Product number')
+         ];
+      }
+
+      $tab[] = [
+         'id'                => '16',
+         'table'             => $this->getTable(),
+         'field'             => 'comment',
+         'name'              => __('Comments'),
+         'datatype'          => 'text'
+      ];
 
       if ($this->isEntityAssign()) {
-         $tab[80]['table']         = 'glpi_entities';
-         $tab[80]['field']         = 'completename';
-         $tab[80]['name']          = __('Entity');
-         $tab[80]['massiveaction'] = false;
-         $tab[80]['datatype']      = 'dropdown';
+         $tab[] = [
+            'id'             => '80',
+            'table'          => 'glpi_entities',
+            'field'          => 'completename',
+            'name'           => __('Entity'),
+            'massiveaction'  => false,
+            'datatype'       => 'dropdown'
+         ];
       }
 
       if ($this->maybeRecursive()) {
-         $tab[86]['table']         = $this->getTable();
-         $tab[86]['field']         = 'is_recursive';
-         $tab[86]['name']          = __('Child entities');
-         $tab[86]['datatype']      = 'bool';
+         $tab[] = [
+            'id'             => '86',
+            'table'          => $this->getTable(),
+            'field'          => 'is_recursive',
+            'name'           => __('Child entities'),
+            'datatype'       => 'bool'
+         ];
       }
 
       if ($this->isField('date_mod')) {
-         $tab[19]['table']         = $this->getTable();
-         $tab[19]['field']         = 'date_mod';
-         $tab[19]['name']          = __('Last update');
-         $tab[19]['datatype']      = 'datetime';
-         $tab[19]['massiveaction'] = false;
+         $tab[] = [
+            'id'             => '19',
+            'table'          => $this->getTable(),
+            'field'          => 'date_mod',
+            'name'           => __('Last update'),
+            'datatype'       => 'datetime',
+            'massiveaction'  => false
+         ];
       }
 
       if ($this->isField('date_creation')) {
-         $tab[121]['table']          = $this->getTable();
-         $tab[121]['field']          = 'date_creation';
-         $tab[121]['name']           = __('Creation date');
-         $tab[121]['datatype']       = 'datetime';
-         $tab[121]['massiveaction']  = false;
+         $tab[] = [
+            'id'             => '121',
+            'table'          => $this->getTable(),
+            'field'          => 'date_creation',
+            'name'           => __('Creation date'),
+            'datatype'       => 'datetime',
+            'massiveaction'  => false
+         ];
       }
 
       // add objectlock search options
-      $tab += ObjectLock::getSearchOptionsToAdd( get_class($this) ) ;
+      $tab = array_merge($tab, ObjectLock::getSearchOptionsToAddNew(get_class($this)));
 
       return $tab;
    }
@@ -556,10 +591,10 @@ abstract class CommonDropdown extends CommonDBTM {
          echo "<td><input type='hidden' name='id' value='$ID'>";
          echo "<input type='hidden' name='forcepurge' value='1'>";
          echo "<input class='submit' type='submit' name='purge'
-                value=\""._sx('button','Confirm')."\">";
+                value=\""._sx('button', 'Confirm')."\">";
          echo "</td>";
          echo "<td><input class='submit' type='submit' name='annuler'
-                    value=\""._sx('button','Cancel')."\">";
+                    value=\""._sx('button', 'Cancel')."\">";
          echo "</td></tr></table>\n";
          Html::closeForm();
       }
@@ -587,9 +622,9 @@ abstract class CommonDropdown extends CommonDBTM {
       }
       echo "<input type='hidden' name='id' value='$ID' />";
       echo "</td><td>";
-      echo "<input class='submit' type='submit' name='replace' value=\""._sx('button','Replace')."\">";
+      echo "<input class='submit' type='submit' name='replace' value=\""._sx('button', 'Replace')."\">";
       echo "</td><td>";
-      echo "<input class='submit' type='submit' name='annuler' value=\""._sx('button','Cancel')."\">";
+      echo "<input class='submit' type='submit' name='annuler' value=\""._sx('button', 'Cancel')."\">";
       echo "</td></tr></table>\n";
       Html::closeForm();
       echo "</div>";
@@ -618,7 +653,7 @@ abstract class CommonDropdown extends CommonDBTM {
          $query .= " LIMIT 1";
 
          // Check twin :
-         if ($result_twin = $DB->query($query) ) {
+         if ($result_twin = $DB->query($query)) {
             if ($DB->numrows($result_twin) > 0) {
                return $DB->result($result_twin, 0, "id");
             }
@@ -681,7 +716,7 @@ abstract class CommonDropdown extends CommonDBTM {
       }
 
       $ruleinput      = array("name" => stripslashes($value));
-      $rulecollection = RuleCollection::getClassByType($this->getType(),true);
+      $rulecollection = RuleCollection::getClassByType($this->getType(), true);
 
       foreach ($this->additional_fields_for_dictionnary as $field) {
          if (isset($external_params[$field])) {
@@ -813,5 +848,76 @@ abstract class CommonDropdown extends CommonDBTM {
       parent::processMassiveActionsForOneItemtype($ma, $item, $ids);
    }
 
+   /**
+    * Get links to Faq
+    *
+    * @param $withname  boolean  also display name ? (false by default)
+   **/
+   function getLinks($withname=false) {
+      global $CFG_GLPI;
+
+      $ret = '';
+
+      if ($withname) {
+         $ret .= $this->fields["name"];
+         $ret .= "&nbsp;&nbsp;";
+      }
+
+      if ($this->isField('knowbaseitemcategories_id')
+          && $this->fields['knowbaseitemcategories_id']) {
+         $title = __('FAQ');
+
+         if (isset($_SESSION['glpiactiveprofile'])
+             && ($_SESSION['glpiactiveprofile']['interface'] == 'central')) {
+            $title = __('Knowledge base');
+         }
+
+         $rand = mt_rand();
+         $kbitem = new KnowbaseItem;
+         $found_kbitem = $kbitem->find("`knowbaseitemcategories_id` = ".
+                                       $this->fields['knowbaseitemcategories_id']);
+
+         $kbitem->getFromDB(reset($found_kbitem)['id']);
+         if (count($found_kbitem)) {
+            $ret.= "<div class='faqadd_block'>";
+            $ret.= "<label for='display_faq_chkbox$rand'>";
+            $ret.= "<img src='".$CFG_GLPI["root_doc"]."/pics/faqadd.png' class='middle pointer'
+                      alt=\"$title\" title=\"$title\">";
+            $ret.= "</label>";
+            $ret.= "<input type='checkbox'  class='display_faq_chkbox' id='display_faq_chkbox$rand'>";
+            $ret.= "<div class='faqadd_entries'>";
+            if (count($found_kbitem) == 1) {
+               $ret.= "<div class='faqadd_block_content' id='faqadd_block_content$rand'>";
+               $ret.= $kbitem->showFull(['display' => false]);
+               $ret.= "</div>"; // .faqadd_block_content
+            } else {
+               $ret.= Html::scriptBlock("
+                  var getKnowbaseItemAnswer$rand = function() {
+                     var knowbaseitems_id = $('#dropdown_knowbaseitems_id$rand').val();
+                     $('#faqadd_block_content$rand').load(
+                        '".$CFG_GLPI['root_doc']."/ajax/getKnowbaseItemAnswer.php',
+                        {
+                           'knowbaseitems_id': knowbaseitems_id
+                        }
+                     );
+                  };
+               ");
+               $ret.= "<label for='dropdown_knowbaseitems_id$rand'>".
+                      KnowbaseItem::getTypeName()."</label>&nbsp;";
+               $ret.= KnowbaseItem::dropdown(['value'     => reset($found_kbitem)['id'],
+                                              'display'   => false,
+                                              'rand'      => $rand,
+                                              'condition' => "`knowbaseitemcategories_id` = ".
+                                                             $this->fields['knowbaseitemcategories_id'],
+                                              'on_change' => "getKnowbaseItemAnswer$rand()"]);
+               $ret.= "<div class='faqadd_block_content' id='faqadd_block_content$rand'>";
+               $ret.= $kbitem->showFull(['display' => false]);
+               $ret.= "</div>"; // .faqadd_block_content
+            }
+            $ret.= "</div>"; // .faqadd_entries
+            $ret.= "</div>"; // .faqadd_block
+         }
+      }
+      return $ret;
+   }
 }
-?>

@@ -1,34 +1,33 @@
 <?php
-/*
- * @version $Id$
- -------------------------------------------------------------------------
- GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2015 Teclib'.
-
- http://glpi-project.org
-
- based on GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2003-2014 by the INDEPNET Development Team.
-
- -------------------------------------------------------------------------
-
- LICENSE
-
- This file is part of GLPI.
-
- GLPI is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
-
- GLPI is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with GLPI. If not, see <http://www.gnu.org/licenses/>.
- --------------------------------------------------------------------------
+/**
+ * ---------------------------------------------------------------------
+ * GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2015-2017 Teclib' and contributors.
+ *
+ * http://glpi-project.org
+ *
+ * based on GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2003-2014 by the INDEPNET Development Team.
+ *
+ * ---------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of GLPI.
+ *
+ * GLPI is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * GLPI is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GLPI. If not, see <http://www.gnu.org/licenses/>.
+ * ---------------------------------------------------------------------
  */
 
 /** @file
@@ -43,7 +42,7 @@ if (!defined('GLPI_ROOT')) {
 /**
  * Reminder Class
 **/
-class Reminder extends CommonDBTM {
+class Reminder extends CommonDBVisible {
 
    // From CommonDBTM
    public $dohistory                   = true;
@@ -60,7 +59,7 @@ class Reminder extends CommonDBTM {
 
    static function getTypeName($nb=0) {
 
-      if (Session::haveRight('reminder_public',READ)) {
+      if (Session::haveRight('reminder_public', READ)) {
          return _n('Reminder', 'Reminders', $nb);
       }
       return _n('Personal reminder', 'Personal reminders', $nb);
@@ -171,105 +170,13 @@ class Reminder extends CommonDBTM {
       $class->cleanDBonItemDelete($this->getType(), $this->fields['id']);
    }
 
-
-   /**
-    * @since version 0.83
-   **/
-   function countVisibilities() {
-
-      return (count($this->entities)
-              + count($this->users)
-              + count($this->groups)
-              + count($this->profiles));
-   }
-
-
-   /**
-    * Is the login user have access to reminder based on visibility configuration
-    *
-    * @return boolean
-   **/
-   function haveVisibilityAccess() {
-
-      // No public reminder right : no visibility check
+   public function haveVisibilityAccess() {
       if (!self::canView()) {
          return false;
       }
 
-      // Author
-      if ($this->fields['users_id'] == Session::getLoginUserID()) {
-         return true;
-      }
-
-      // Users
-      if (isset($this->users[Session::getLoginUserID()])) {
-         return true;
-      }
-
-      // Groups
-      if (count($this->groups)
-          && isset($_SESSION["glpigroups"]) && count($_SESSION["glpigroups"])) {
-         foreach ($this->groups as $key => $data) {
-            foreach ($data as $group) {
-               if (in_array($group['groups_id'], $_SESSION["glpigroups"])) {
-                  // All the group
-                  if ($group['entities_id'] < 0) {
-                     return true;
-                  }
-                  // Restrict to entities
-                  $entities = array($group['entities_id']);
-                  if ($group['is_recursive']) {
-                     $entities = getSonsOf('glpi_entities', $group['entities_id']);
-                  }
-                  if (Session::haveAccessToOneOfEntities($entities, true)) {
-                     return true;
-                  }
-               }
-            }
-         }
-      }
-
-      // Entities
-      if (count($this->entities)
-          && isset($_SESSION["glpiactiveentities"]) && count($_SESSION["glpiactiveentities"])) {
-         foreach ($this->entities as $key => $data) {
-            foreach ($data as $entity) {
-               $entities = array($entity['entities_id']);
-               if ($entity['is_recursive']) {
-                  $entities = getSonsOf('glpi_entities', $entity['entities_id']);
-               }
-               if (Session::haveAccessToOneOfEntities($entities, true)) {
-                  return true;
-               }
-            }
-         }
-      }
-
-      // Profiles
-      if (count($this->profiles)
-          && isset($_SESSION["glpiactiveprofile"])
-          && isset($_SESSION["glpiactiveprofile"]['id'])) {
-         if (isset($this->profiles[$_SESSION["glpiactiveprofile"]['id']])) {
-            foreach ($this->profiles[$_SESSION["glpiactiveprofile"]['id']] as $profile) {
-               // All the profile
-               if ($profile['entities_id'] < 0) {
-                  return true;
-               }
-               // Restrict to entities
-               $entities = array($profile['entities_id']);
-               if ($profile['is_recursive']) {
-                  $entities = getSonsOf('glpi_entities',$profile['entities_id']);
-               }
-               if (Session::haveAccessToOneOfEntities($entities, true)) {
-                  return true;
-               }
-            }
-         }
-      }
-
-      return false;
+      return parent::haveVisibilityAccess();
    }
-
 
    /**
     * Return visibility joins to add to SQL
@@ -333,7 +240,7 @@ class Reminder extends CommonDBTM {
       // Groups
       if (isset($_SESSION["glpigroups"]) && count($_SESSION["glpigroups"])) {
          $restrict .= " OR (`glpi_groups_reminders`.`groups_id`
-                                 IN ('".implode("','",$_SESSION["glpigroups"])."')
+                                 IN ('".implode("','", $_SESSION["glpigroups"])."')
                             AND (`glpi_groups_reminders`.`entities_id` < 0
                                  ".getEntitiesRestrictRequest("OR", "glpi_groups_reminders", '', '',
                                                               true).")) ";
@@ -351,7 +258,7 @@ class Reminder extends CommonDBTM {
       // Entities
       if (isset($_SESSION["glpiactiveentities"]) && count($_SESSION["glpiactiveentities"])) {
          // Force complete SQL not summary when access to all entities
-         $restrict .= getEntitiesRestrictRequest("OR","glpi_entities_reminders", '', '', true, true);
+         $restrict .= getEntitiesRestrictRequest("OR", "glpi_entities_reminders", '', '', true, true);
       }
 
       return '('.$restrict.')';
@@ -359,6 +266,9 @@ class Reminder extends CommonDBTM {
 
 
    function post_addItem() {
+      // Add document if needed
+      $this->input = $this->addFiles($this->input, ['force_update'  => true,
+                                                    'content_field' => 'text']);
 
       if (isset($this->fields["begin"]) && !empty($this->fields["begin"])) {
          Planning::checkAlreadyPlanned($this->fields["users_id"], $this->fields["begin"],
@@ -383,7 +293,7 @@ class Reminder extends CommonDBTM {
                                        $this->fields["end"],
                                        array('Reminder' => array($this->fields['id'])));
       }
-      if (in_array("begin",$this->updates)) {
+      if (in_array("begin", $this->updates)) {
          PlanningRecall::managePlanningUpdates($this->getType(), $this->getID(),
                                                $this->fields["begin"]);
       }
@@ -391,79 +301,115 @@ class Reminder extends CommonDBTM {
    }
 
 
-   function getSearchOptions() {
+   function getSearchOptionsNew() {
+      $tab = [];
 
-      $tab                     = array();
-      $tab['common']           = __('Characteristics');
+      $tab[] = [
+         'id'                 => 'common',
+         'name'               => __('Characteristics')
+      ];
 
-      $tab[1]['table']         = $this->getTable();
-      $tab[1]['field']         = 'name';
-      $tab[1]['name']          = __('Title');
-      $tab[1]['datatype']      = 'itemlink';
-      $tab[1]['massiveaction'] = false;
-      $tab[1]['forcegroupby']  = true;
+      $tab[] = [
+         'id'                 => '1',
+         'table'              => $this->getTable(),
+         'field'              => 'name',
+         'name'               => __('Title'),
+         'datatype'           => 'itemlink',
+         'massiveaction'      => false,
+         'forcegroupby'       => true
+      ];
 
-      $tab[2]['table']         = 'glpi_users';
-      $tab[2]['field']         = 'name';
-      $tab[2]['name']          = __('Writer');
-      $tab[2]['datatype']      = 'dropdown';
-      $tab[2]['massiveaction'] = false;
-      $tab[2]['right']           = 'all';
+      $tab[] = [
+         'id'                 => '2',
+         'table'              => 'glpi_users',
+         'field'              => 'name',
+         'name'               => __('Writer'),
+         'datatype'           => 'dropdown',
+         'massiveaction'      => false,
+         'right'              => 'all'
+      ];
 
-      $tab[3]['table']         = $this->getTable();
-      $tab[3]['field']         = 'state';
-      $tab[3]['name']          = __('Status');
-      $tab[3]['datatype']      = 'specific';
-      $tab[3]['massiveaction'] = false;
-      $tab[3]['searchtype']    = array('equals', 'notequals');
+      $tab[] = [
+         'id'                 => '3',
+         'table'              => $this->getTable(),
+         'field'              => 'state',
+         'name'               => __('Status'),
+         'datatype'           => 'specific',
+         'massiveaction'      => false,
+         'searchtype'         => ['equals', 'notequals']
+      ];
 
-      $tab[4]['table']         = $this->getTable();
-      $tab[4]['field']         = 'text';
-      $tab[4]['name']          = __('Description');
-      $tab[4]['massiveaction'] = false;
-      $tab[4]['datatype']      = 'text';
-      $tab[4]['htmltext']      = true;
+      $tab[] = [
+         'id'                 => '4',
+         'table'              => $this->getTable(),
+         'field'              => 'text',
+         'name'               => __('Description'),
+         'massiveaction'      => false,
+         'datatype'           => 'text',
+         'htmltext'           => true
+      ];
 
-      $tab[5]['table']         = $this->getTable();
-      $tab[5]['field']         = 'begin_view_date';
-      $tab[5]['name']          = __('Visibility start date');
-      $tab[5]['datatype']      = 'datetime';
+      $tab[] = [
+         'id'                 => '5',
+         'table'              => $this->getTable(),
+         'field'              => 'begin_view_date',
+         'name'               => __('Visibility start date'),
+         'datatype'           => 'datetime'
+      ];
 
-      $tab[6]['table']         = $this->getTable();
-      $tab[6]['field']         = 'end_view_date';
-      $tab[6]['name']          = __('Visibility end date');
-      $tab[6]['datatype']      = 'datetime';
+      $tab[] = [
+         'id'                 => '6',
+         'table'              => $this->getTable(),
+         'field'              => 'end_view_date',
+         'name'               => __('Visibility end date'),
+         'datatype'           => 'datetime'
+      ];
 
-      $tab[7]['table']         = $this->getTable();
-      $tab[7]['field']         = 'is_planned';
-      $tab[7]['name']          = __('Planning');
-      $tab[7]['datatype']      = 'bool';
-      $tab[7]['massiveaction'] = false;
+      $tab[] = [
+         'id'                 => '7',
+         'table'              => $this->getTable(),
+         'field'              => 'is_planned',
+         'name'               => __('Planning'),
+         'datatype'           => 'bool',
+         'massiveaction'      => false
+      ];
 
-      $tab[8]['table']         = $this->getTable();
-      $tab[8]['field']         = 'begin';
-      $tab[8]['name']          = __('Planning start date');
-      $tab[8]['datatype']      = 'datetime';
+      $tab[] = [
+         'id'                 => '8',
+         'table'              => $this->getTable(),
+         'field'              => 'begin',
+         'name'               => __('Planning start date'),
+         'datatype'           => 'datetime'
+      ];
 
-      $tab[9]['table']         = $this->getTable();
-      $tab[9]['field']         = 'end';
-      $tab[9]['name']          = __('Planning end date');
-      $tab[9]['datatype']      = 'datetime';
+      $tab[] = [
+         'id'                 => '9',
+         'table'              => $this->getTable(),
+         'field'              => 'end',
+         'name'               => __('Planning end date'),
+         'datatype'           => 'datetime'
+      ];
 
-      $tab[19]['table']         = $this->getTable();
-      $tab[19]['field']         = 'date_mod';
-      $tab[19]['name']          = __('Last update');
-      $tab[19]['datatype']      = 'datetime';
-      $tab[19]['massiveaction'] = false;
+      $tab[] = [
+         'id'                 => '19',
+         'table'              => $this->getTable(),
+         'field'              => 'date_mod',
+         'name'               => __('Last update'),
+         'datatype'           => 'datetime',
+         'massiveaction'      => false
+      ];
 
-      $tab[121]['table']          = $this->getTable();
-      $tab[121]['field']          = 'date_creation';
-      $tab[121]['name']           = __('Creation date');
-      $tab[121]['datatype']       = 'datetime';
-      $tab[121]['massiveaction']  = false;
+      $tab[] = [
+         'id'                 => '121',
+         'table'              => $this->getTable(),
+         'field'              => 'date_creation',
+         'name'               => __('Creation date'),
+         'datatype'           => 'datetime',
+         'massiveaction'      => false
+      ];
 
       // add objectlock search options
-      $tab += ObjectLock::getSearchOptionsToAdd( get_class($this) ) ;
+      $tab = array_merge($tab, ObjectLock::getSearchOptionsToAddNew(get_class($this)));
 
       return $tab;
    }
@@ -525,7 +471,7 @@ class Reminder extends CommonDBTM {
                   if ($_SESSION['glpishow_count_on_tabs']) {
                      $nb = $item->countVisibilities();
                   }
-                  return array(1 => self::createTabEntry(_n('Target','Targets',
+                  return array(1 => self::createTabEntry(_n('Target', 'Targets',
                                                             Session::getPluralNumber()), $nb));
                }
          }
@@ -579,7 +525,6 @@ class Reminder extends CommonDBTM {
       }
 
       $input["begin"] = $input["end"] = "NULL";
-
 
       if (isset($input['plan'])) {
          if (!empty($input['plan']["begin"])
@@ -644,6 +589,8 @@ class Reminder extends CommonDBTM {
          }
       }
 
+      $input = $this->addFiles($input, ['content_field' => 'text']);
+
       return $input;
    }
 
@@ -677,7 +624,6 @@ class Reminder extends CommonDBTM {
    function showForm($ID, $options=array()) {
       global $CFG_GLPI;
 
-
       $this->initForm($ID, $options);
       $rand = mt_rand();
 
@@ -692,10 +638,10 @@ class Reminder extends CommonDBTM {
 
       $this->showFormHeader($options);
 
-      echo "<tr class='tab_bg_2'><td>".__('Title')."</td>";
-      echo "<td>";
+      echo "<tr class='tab_bg_2'><td colspan='2'>".__('Title')."</td>";
+      echo "<td colspan='2'>";
       if (!$ID) {
-      echo "<input type='hidden' name='users_id' value='".$this->fields['users_id']."'>\n";
+         echo "<input type='hidden' name='users_id' value='".$this->fields['users_id']."'>\n";
       }
       if ($canedit) {
          Html::autocompletionTextField($this, "name",
@@ -714,8 +660,8 @@ class Reminder extends CommonDBTM {
 
       if (!isset($options['from_planning_ajax'])) {
          echo "<tr class='tab_bg_2'>";
-         echo "<td>".__('Visibility')."</td>";
-         echo "<td>";
+         echo "<td colspan='2'>".__('Visibility')."</td>";
+         echo "<td colspan='2'>";
          echo '<table><tr><td>';
          echo __('Begin').'</td><td>';
          Html::showDateTimeField("begin_view_date",
@@ -735,8 +681,8 @@ class Reminder extends CommonDBTM {
       }
 
       echo "<tr class='tab_bg_2'>";
-      echo "<td>".__('Status')."</td>";
-      echo "<td>";
+      echo "<td colspan='2'>".__('Status')."</td>";
+      echo "<td colspan='2'>";
       if ($canedit) {
          Planning::dropdownState("state", $this->fields["state"]);
       } else {
@@ -745,12 +691,12 @@ class Reminder extends CommonDBTM {
       echo "</td>\n";
       echo "</tr>\n";
 
-      echo "<tr class='tab_bg_2'><td >".__('Calendar')."</td>";
-      echo "<td>";
+      echo "<tr class='tab_bg_2'><td  colspan='2'>".__('Calendar')."</td>";
+      echo "<td colspan='2'>";
       if (isset($options['from_planning_ajax'])
           && $options['from_planning_ajax']) {
          echo Html::hidden('plan[begin]', array('value' => $options['begin']));
-         echo Html::hidden('plan[end]',   array('value' => $options['end']));
+         echo Html::hidden('plan[end]', array('value' => $options['end']));
          printf(__('From %1$s to %2$s'), Html::convDateTime($options["begin"]),
                                          Html::convDateTime($options["end"]));
          echo "</td>";
@@ -765,13 +711,13 @@ class Reminder extends CommonDBTM {
                                'itemtype' => $this->getType(),
                                'items_id' => $this->getID());
 
-               if ($ID
-                   && $this->fields["is_planned"]) {
-                  $params['begin'] = $this->fields["begin"];
-                  $params['end']   = $this->fields["end"];
-               }
+            if ($ID
+                && $this->fields["is_planned"]) {
+               $params['begin'] = $this->fields["begin"];
+               $params['end']   = $this->fields["end"];
+            }
 
-               Ajax::updateItemJsCode("viewplan$rand", $CFG_GLPI["root_doc"]."/ajax/planning.php", $params);
+            Ajax::updateItemJsCode("viewplan$rand", $CFG_GLPI["root_doc"]."/ajax/planning.php", $params);
             echo "}";
             echo "</script>\n";
          }
@@ -810,7 +756,7 @@ class Reminder extends CommonDBTM {
          if ($ID
              && $this->fields["is_planned"]
              && PlanningRecall::isAvailable()) {
-            echo "<td>"._x('Planning','Reminder')."</td>";
+            echo "<td>"._x('Planning', 'Reminder')."</td>";
             echo "<td>";
             if ($canedit) {
                PlanningRecall::dropdown(array('itemtype' => 'Reminder',
@@ -820,8 +766,6 @@ class Reminder extends CommonDBTM {
                                                   'items_id' => $ID));
             }
             echo "</td>";
-         } else {
-            echo "<td colspan='2'></td>";
          }
       }
       echo "</tr>\n";
@@ -830,10 +774,10 @@ class Reminder extends CommonDBTM {
            "<td colspan='3'>";
 
       if ($canedit) {
-         $rand = mt_rand();
-         echo "<textarea rows='15' name='text' id='text$rand'>".
-              $this->fields["text"]."</textarea>";
-         Html::initEditorSystem('text'.$rand);
+         Html::textarea(['name'              => 'text',
+                         'value'             => $this->fields["text"],
+                         'enable_richtext'   => true,
+                         'enable_fileupload' => true]);
       } else {
          echo "<div  id='kbanswer'>";
          echo Toolbox::unclean_html_cross_side_scripting_deep($this->fields["text"]);
@@ -858,7 +802,8 @@ class Reminder extends CommonDBTM {
     *    - end Date
     *    - color
     *    - event_type_color
-    *    - check_avaibility (boolean)
+    *    - check_planned (boolean)
+    *    - display_done_events (boolean)
     *
     * @return array of planning item
    **/
@@ -866,9 +811,11 @@ class Reminder extends CommonDBTM {
       global $DB, $CFG_GLPI;
 
       $default_options = array(
-         'color'            => '',
-         'event_type_color' => '',
-         'check_planned'    => false,
+         'genical'             => false,
+         'color'               => '',
+         'event_type_color'    => '',
+         'check_planned'       => false,
+         'display_done_events' => true,
       );
       $options = array_merge($default_options, $options);
 
@@ -890,7 +837,8 @@ class Reminder extends CommonDBTM {
       $joinstoadd = self::addVisibilityJoins(true);
 
       // See public reminder ?
-      if (($who === Session::getLoginUserID())
+      if (!$options['genical']
+          && $who === Session::getLoginUserID()
           && self::canView()) {
          $readpub    = self::addVisibilityRestrict();
       }
@@ -927,6 +875,13 @@ class Reminder extends CommonDBTM {
          $PLANNED = "AND state != ".Planning::INFO;
       }
 
+      $DONE_EVENTS = '';
+      if (!$options['display_done_events']) {
+         $DONE_EVENTS = "AND (state = ".Planning::TODO."
+                              OR (state = ".Planning::INFO."
+                                  AND `end` > NOW()))";
+      }
+
       if ($ASSIGN) {
          $query2 = "SELECT DISTINCT `glpi_reminders`.*
                     FROM `glpi_reminders`
@@ -934,49 +889,52 @@ class Reminder extends CommonDBTM {
                     WHERE `glpi_reminders`.`is_planned` = '1'
                           AND $ASSIGN
                           $PLANNED
+                          $DONE_EVENTS
                           AND `begin` < '$end'
                           AND `end` > '$begin'
                     ORDER BY `begin`";
          $result2 = $DB->query($query2);
 
          if ($DB->numrows($result2) > 0) {
-            for ($i=0 ; $data=$DB->fetch_assoc($result2) ; $i++) {
-               $key                               = $data["begin"]."$$"."Reminder"."$$".$data["id"];
-               $interv[$key]['color']             = $options['color'];
-               $interv[$key]['event_type_color']  = $options['event_type_color'];
-               $interv[$key]["itemtype"]          = 'Reminder';
-               $interv[$key]["reminders_id"]      = $data["id"];
-               $interv[$key]["id"]                = $data["id"];
+            for ($i=0; $data=$DB->fetch_assoc($result2); $i++) {
+               if ($reminder->getFromDB($data["id"])
+                   && $reminder->canViewItem()) {
+                  $key                               = $data["begin"]."$$"."Reminder"."$$".$data["id"];
+                  $interv[$key]['color']             = $options['color'];
+                  $interv[$key]['event_type_color']  = $options['event_type_color'];
+                  $interv[$key]["itemtype"]          = 'Reminder';
+                  $interv[$key]["reminders_id"]      = $data["id"];
+                  $interv[$key]["id"]                = $data["id"];
 
-               if (strcmp($begin,$data["begin"]) > 0) {
-                  $interv[$key]["begin"] = $begin;
-               } else {
-                  $interv[$key]["begin"] = $data["begin"];
+                  if (strcmp($begin, $data["begin"]) > 0) {
+                     $interv[$key]["begin"] = $begin;
+                  } else {
+                     $interv[$key]["begin"] = $data["begin"];
+                  }
+
+                  if (strcmp($end, $data["end"]) < 0) {
+                     $interv[$key]["end"] = $end;
+                  } else {
+                     $interv[$key]["end"] = $data["end"];
+                  }
+                  $interv[$key]["name"] = Html::resume_text($data["name"], $CFG_GLPI["cut"]);
+                  $interv[$key]["text"]
+                     = Html::resume_text(Html::clean(Toolbox::unclean_cross_side_scripting_deep($data["text"])),
+                                         $CFG_GLPI["cut"]);
+
+                  $interv[$key]["users_id"]   = $data["users_id"];
+                  $interv[$key]["state"]      = $data["state"];
+                  $interv[$key]["state"]      = $data["state"];
+                  $interv[$key]["url"]        = $CFG_GLPI["root_doc"]."/front/reminder.form.php?id=".
+                                                                      $data['id'];
+                  $interv[$key]["ajaxurl"]    = $CFG_GLPI["root_doc"]."/ajax/planning.php".
+                                                                      "?action=edit_event_form".
+                                                                      "&itemtype=Reminder".
+                                                                      "&id=".$data['id'].
+                                                                      "&url=".$interv[$key]["url"];
+
+                  $interv[$key]["editable"]   = $reminder->canUpdateItem();
                }
-
-               if (strcmp($end,$data["end"]) < 0) {
-                  $interv[$key]["end"] = $end;
-               } else {
-                  $interv[$key]["end"] = $data["end"];
-               }
-               $interv[$key]["name"] = Html::resume_text($data["name"], $CFG_GLPI["cut"]);
-               $interv[$key]["text"]
-                  = Html::resume_text(Html::clean(Toolbox::unclean_cross_side_scripting_deep($data["text"])),
-                                      $CFG_GLPI["cut"]);
-
-               $interv[$key]["users_id"]   = $data["users_id"];
-               $interv[$key]["state"]      = $data["state"];
-               $interv[$key]["state"]      = $data["state"];
-               $interv[$key]["url"]        = $CFG_GLPI["root_doc"]."/front/reminder.form.php?id=".
-                                                                   $data['id'];
-               $interv[$key]["ajaxurl"]    = $CFG_GLPI["root_doc"]."/ajax/planning.php".
-                                                                   "?action=edit_event_form".
-                                                                   "&itemtype=Reminder".
-                                                                   "&id=".$data['id'].
-                                                                   "&url=".$interv[$key]["url"];
-
-               $reminder->getFromDB($data["id"]);
-               $interv[$key]["editable"]   = $reminder->canUpdateItem();
             }
          }
       }
@@ -999,7 +957,7 @@ class Reminder extends CommonDBTM {
                           Html::convDateTime($val["begin"]), Html::convDateTime($val["end"]));
       $out      = sprintf(__('%1$s: %2$s'), $beginend,
                           "<a href='".$CFG_GLPI["root_doc"]."/front/reminder.form.php?id=".
-                            $val["reminders_id"]."'>".Html::resume_text($val["name"],80)."</a>");
+                            $val["reminders_id"]."'>".Html::resume_text($val["name"], 80)."</a>");
       return $out;
    }
 
@@ -1033,7 +991,6 @@ class Reminder extends CommonDBTM {
       $html.= "<a id='reminder_".$val["reminders_id"].$rand."' href='".
              $CFG_GLPI["root_doc"]."/front/reminder.form.php?id=".$val["reminders_id"]."'>";
 
-   
       $html.= $users_id;
       $html.= "</a>";
       $recall = '';
@@ -1047,14 +1004,13 @@ class Reminder extends CommonDBTM {
          }
       }
 
-
       if ($complete) {
          $html.= "<span>".Planning::getState($val["state"])."</span><br>";
          $html.= "<div class='event-description'>".$val["text"].$recall."</div>";
       } else {
          $html.= Html::showToolTip("<span class='b'>".Planning::getState($val["state"])."</span><br>
                                    ".$val["text"].$recall,
-                                   array('applyto' => "reminder_".$val["reminders_id"].$rand, 
+                                   array('applyto' => "reminder_".$val["reminders_id"].$rand,
                                          'display' => false));
       }
       return $html;
@@ -1110,7 +1066,7 @@ class Reminder extends CommonDBTM {
             $restrict_user = "`glpi_reminders`.`users_id` <> '$users_id'";
          }
 
-         $query = "SELECT `glpi_reminders`.*
+         $query = "SELECT DISTINCT `glpi_reminders`.*
                    FROM `glpi_reminders` ".
                    self::addVisibilityJoins()."
                    WHERE $restrict_user
@@ -1157,7 +1113,7 @@ class Reminder extends CommonDBTM {
             printf(__('%1$s %2$s'), $link, $tooltip);
 
             if ($data["is_planned"]) {
-               $tab      = explode(" ",$data["begin"]);
+               $tab      = explode(" ", $data["begin"]);
                $date_url = $tab[0];
                echo "<span class='floatright'>";
                echo "<a href='".$CFG_GLPI["root_doc"]."/front/planning.php?date=".$date_url.
@@ -1177,196 +1133,6 @@ class Reminder extends CommonDBTM {
 
    }
 
-
-   /**
-    * Show visibility config for a reminder
-   **/
-   function showVisibility() {
-      global $DB, $CFG_GLPI;
-
-      $ID      = $this->fields['id'];
-      $canedit = $this->canEdit($ID);
-
-      $rand = mt_rand();
-
-      $nb = count($this->users) + count($this->groups) + count($this->profiles)
-            + count($this->entities);
-
-      if ($canedit) {
-         echo "<div class='firstbloc'>";
-         echo "<form name='remindervisibility_form$rand' id='remindervisibility_form$rand' ";
-         echo " method='post' action='".Toolbox::getItemTypeFormURL('Reminder')."'>";
-         echo "<input type='hidden' name='reminders_id' value='$ID'>";
-         echo "<table class='tab_cadre_fixe'>";
-         echo "<tr class='tab_bg_1'><th colspan='4'>".__('Add a target')."</tr>";
-         echo "<tr class='tab_bg_2'><td width='100px'>";
-
-         $types = array('Entity', 'Group', 'Profile', 'User');
-
-         $addrand = Dropdown::showItemTypes('_type', $types);
-         $params  = array('type'  => '__VALUE__',
-                          'right' => 'reminder_public');
-
-         Ajax::updateItemOnSelectEvent("dropdown__type".$addrand,"visibility$rand",
-                                       $CFG_GLPI["root_doc"]."/ajax/visibility.php", $params);
-
-         echo "</td>";
-         echo "<td><span id='visibility$rand'></span>";
-         echo "</td></tr>";
-         echo "</table>";
-         Html::closeForm();
-         echo "</div>";
-      }
-      echo "<div class='spaced'>";
-      if ($canedit && $nb) {
-         Html::openMassiveActionsForm('mass'.__CLASS__.$rand);
-         $massiveactionparams
-            = array('num_displayed'
-                        => $nb,
-                    'container'
-                        => 'mass'.__CLASS__.$rand,
-                    'specific_actions'
-                        => array('delete' => _x('button', 'Delete permanently')) );
-
-         if ($this->fields['users_id'] != Session::getLoginUserID()) {
-            $massiveactionparams['confirm']
-               = __('Caution! You are not the author of this element. Delete targets can result in loss of access to that element.');
-         }
-         Html::showMassiveActions($massiveactionparams);
-      }
-      echo "<table class='tab_cadre_fixehov'>";
-      $header_begin  = "<tr>";
-      $header_top    = '';
-      $header_bottom = '';
-      $header_end    = '';
-      if ($canedit && $nb) {
-         $header_begin  .= "<th width='10'>";
-         $header_top    .= Html::getCheckAllAsCheckbox('mass'.__CLASS__.$rand);
-         $header_bottom .= Html::getCheckAllAsCheckbox('mass'.__CLASS__.$rand);
-         $header_end    .= "</th>";
-      }
-      $header_end .= "<th>".__('Type')."</th>";
-      $header_end .= "<th>"._n('Recipient', 'Recipients', Session::getPluralNumber())."</th>";
-      $header_end .= "</tr>";
-      echo $header_begin.$header_top.$header_end;
-
-      // Users
-      if (count($this->users)) {
-         foreach ($this->users as $key => $val) {
-            foreach ($val as $data) {
-               echo "<tr class='tab_bg_2'>";
-               if ($canedit) {
-                  echo "<td>";
-                  Html::showMassiveActionCheckBox('Reminder_User',$data["id"]);
-                  echo "</td>";
-               }
-               echo "<td>".__('User')."</td>";
-               echo "<td>".getUserName($data['users_id'])."</td>";
-               echo "</tr>";
-            }
-         }
-      }
-      // Groups
-      if (count($this->groups)) {
-         foreach ($this->groups as $key => $val) {
-            foreach ($val as $data) {
-               echo "<tr class='tab_bg_2'>";
-               if ($canedit) {
-                  echo "<td>";
-                  Html::showMassiveActionCheckBox('Group_Reminder',$data["id"]);
-                  echo "</td>";
-               }
-               echo "<td>".__('Group')."</td>";
-
-               $names    = Dropdown::getDropdownName('glpi_groups', $data['groups_id'],1);
-               $entname = sprintf(__('%1$s %2$s'), $names["name"],
-                                   Html::showToolTip($names["comment"], array('display' => false)));
-               if ($data['entities_id'] >= 0) {
-                  $entname = sprintf(__('%1$s / %2$s'), $entname,
-                                     Dropdown::getDropdownName('glpi_entities',
-                                                               $data['entities_id']));
-                  if ($data['is_recursive']) {
-                     //TRANS: R for Recursive
-                     sprintf(__('%1$s %2$s'), $entname,
-                             "<span class='b'>(".__('R').")</span>");
-                  }
-               }
-               echo "<td>".$entname."</td>";
-               echo "</tr>";
-            }
-         }
-      }
-
-      // Entity
-      if (count($this->entities)) {
-         foreach ($this->entities as $key => $val) {
-            foreach ($val as $data) {
-               echo "<tr class='tab_bg_2'>";
-               if ($canedit) {
-                  echo "<td>";
-                  Html::showMassiveActionCheckBox('Entity_Reminder',$data["id"]);
-                  echo "</td>";
-               }
-               echo "<td>".__('Entity')."</td>";
-               $names   = Dropdown::getDropdownName('glpi_entities', $data['entities_id'],1);
-               $tooltip = Html::showToolTip($names["comment"], array('display' => false));
-               $entname = sprintf(__('%1$s %2$s'), $names["name"], $tooltip);
-               if ($data['is_recursive']) {
-                  $entname = sprintf(__('%1$s %2$s'), $entname,
-                                     "<span class='b'>(".__('R').")</span>");
-               }
-               echo "<td>".$entname."</td>";
-               echo "</tr>";
-            }
-         }
-      }
-
-      // Profiles
-      if (count($this->profiles)) {
-         foreach ($this->profiles as $key => $val) {
-            foreach ($val as $data) {
-               echo "<tr class='tab_bg_2'>";
-               if ($canedit) {
-                  echo "<td>";
-                  Html::showMassiveActionCheckBox('Profile_Reminder',$data["id"]);
-                  echo "</td>";
-               }
-               echo "<td>"._n('Profile', 'Profiles', 1)."</td>";
-
-               $names   = Dropdown::getDropdownName('glpi_profiles',$data['profiles_id'],1);
-               $tooltip = Html::showToolTip($names["comment"], array('display' => false));
-               $entname = sprintf(__('%1$s %2$s'), $names["name"], $tooltip);
-               if ($data['entities_id'] >= 0) {
-                  $entname = sprintf(__('%1$s / %2$s'), $entname,
-                                     Dropdown::getDropdownName('glpi_entities',
-                                                               $data['entities_id']));
-                  if ($data['is_recursive']) {
-                     $entname = sprintf(__('%1$s %2$s'), $entname,
-                                        "<span class='b'>(".__('R').")</span>");
-                  }
-               }
-               echo "<td>".$entname."</td>";
-               echo "</tr>";
-            }
-         }
-      }
-      if ($nb) {
-         echo $header_begin.$header_bottom.$header_end;
-      }
-      echo "</table>";
-      if ($canedit && $nb) {
-         $massiveactionparams['ontop'] =false;
-         Html::showMassiveActions($massiveactionparams);
-         Html::closeForm();
-      }
-
-      echo "</div>";
-      // Add items
-
-      return true;
-   }
-
-
    /**
     * @since version 0.85
     *
@@ -1383,4 +1149,3 @@ class Reminder extends CommonDBTM {
    }
 
 }
-?>

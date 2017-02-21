@@ -1,10 +1,10 @@
 [![Build Status](https://secure.travis-ci.org/glpi-project/glpi.svg?branch=master)](https://secure.travis-ci.org/glpi-project/glpi)
 
-![GLPi Logo](https://raw.githubusercontent.com/glpi-project/glpi/master/pics/logos/logo-GLPI-250-black.png)
+![GLPI Logo](https://raw.githubusercontent.com/glpi-project/glpi/master/pics/logos/logo-GLPI-250-black.png)
 
-GLPi stands for **Gestionnaire Libre de Parc Informatique** is a Free Asset and IT Management Software package, that provides ITIL Service Desk features, licenses tracking and software auditing.
+GLPI stands for **Gestionnaire Libre de Parc Informatique** is a Free Asset and IT Management Software package, that provides ITIL Service Desk features, licenses tracking and software auditing.
 
-GLPi features:
+GLPI features:
 * Multilingual support: 45 translations available
 * Inventory of computers, peripherals, network printers and any associated components through an interface, with inventory tools such as: OCS Inventory or FusionInventory
 * Assignment of equipment by geographical area to users and groups
@@ -19,7 +19,7 @@ GLPi features:
 * Knowledge base and Frequently-Asked Questions (FAQ)
 * Report generator: hardware, network or interventions (support)
 
-Moreover, GLPi supports many [plugins](http://plugins.glpi-project.org) that provide additional features.
+Moreover, GLPI supports many [plugins](http://plugins.glpi-project.org) that provide additional features.
 
 
 ## License
@@ -31,17 +31,17 @@ It is distributed under the GNU GENERAL PUBLIC LICENSE Version 2 - please consul
 
 * A web server (Apache, Nginx, IIS, etc.)
 * MariaDB (or MySQL < 5.7)
-* PHP 5.4 or higher
+* PHP 5.6 or higher
 * Mandatory PHP extensions:
     - json
     - mbstring
     - mysqli
     - session
+    - gd (picture generation)
+    - curl (CAS authentication)
 
 * Recommended PHP extensions (to enable optional features)
-    - curl (CAS authentication)
     - domxml (CAS authentication)
-    - gd (picture generation)
     - imap (mail collector and users authentication)
     - ldap (users authentication)
     - openssl (encrypted communication)

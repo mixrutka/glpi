@@ -1,33 +1,33 @@
 <?php
-/*
- -------------------------------------------------------------------------
- GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2015-2016 Teclib'.
-
- http://glpi-project.org
-
- based on GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2003-2014 by the INDEPNET Development Team.
-
- -------------------------------------------------------------------------
-
- LICENSE
-
- This file is part of GLPI.
-
- GLPI is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
-
- GLPI is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with GLPI. If not, see <http://www.gnu.org/licenses/>.
- --------------------------------------------------------------------------
+/**
+ * ---------------------------------------------------------------------
+ * GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2015-2017 Teclib' and contributors.
+ *
+ * http://glpi-project.org
+ *
+ * based on GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2003-2014 by the INDEPNET Development Team.
+ *
+ * ---------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of GLPI.
+ *
+ * GLPI is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * GLPI is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GLPI. If not, see <http://www.gnu.org/licenses/>.
+ * ---------------------------------------------------------------------
  */
 
 /** @file
@@ -62,7 +62,7 @@ class SLA extends CommonDBTM {
    **/
    function setTicketCalendar($calendars_id) {
 
-      if ($this->fields['calendars_id'] == -1 ) {
+      if ($this->fields['calendars_id'] == -1) {
          $this->fields['calendars_id'] = $calendars_id;
       }
    }
@@ -122,27 +122,39 @@ class SLA extends CommonDBTM {
    }
 
 
-   function getSearchOptions() {
+   function getSearchOptionsNew() {
+      $tab = [];
 
-      $tab                        = array();
-      $tab['common']              = __('Characteristics');
+      $tab[] = [
+         'id'                 => 'common',
+         'name'               => __('Characteristics')
+      ];
 
-      $tab[1]['table']            = $this->getTable();
-      $tab[1]['field']            = 'name';
-      $tab[1]['name']             = __('Name');
-      $tab[1]['datatype']         = 'itemlink';
-      $tab[1]['massiveaction']    = false;
+      $tab[] = [
+         'id'                 => '1',
+         'table'              => $this->getTable(),
+         'field'              => 'name',
+         'name'               => __('Name'),
+         'datatype'           => 'itemlink',
+         'massiveaction'      => false
+      ];
 
-      $tab[2]['table']            = $this->getTable();
-      $tab[2]['field']            = 'id';
-      $tab[2]['name']             = __('ID');
-      $tab[2]['massiveaction']    = false;
-      $tab[2]['datatype']         = 'number';
+      $tab[] = [
+         'id'                 => '2',
+         'table'              => $this->getTable(),
+         'field'              => 'id',
+         'name'               => __('ID'),
+         'massiveaction'      => false,
+         'datatype'           => 'number'
+      ];
 
-      $tab[4]['table']            = 'glpi_calendars';
-      $tab[4]['field']            = 'name';
-      $tab[4]['name']             = __('Calendar');
-      $tab[4]['datatype']         = 'dropdown';
+      $tab[] = [
+         'id'                 => '4',
+         'table'              => 'glpi_calendars',
+         'field'              => 'name',
+         'name'               => __('Calendar'),
+         'datatype'           => 'dropdown'
+      ];
 
       return $tab;
    }

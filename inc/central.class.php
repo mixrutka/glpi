@@ -1,39 +1,40 @@
 <?php
-/*
- * @version $Id$
- -------------------------------------------------------------------------
- GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2015 Teclib'.
-
- http://glpi-project.org
-
- based on GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2003-2014 by the INDEPNET Development Team.
-
- -------------------------------------------------------------------------
-
- LICENSE
-
- This file is part of GLPI.
-
- GLPI is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
-
- GLPI is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with GLPI. If not, see <http://www.gnu.org/licenses/>.
- --------------------------------------------------------------------------
+/**
+ * ---------------------------------------------------------------------
+ * GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2015-2017 Teclib' and contributors.
+ *
+ * http://glpi-project.org
+ *
+ * based on GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2003-2014 by the INDEPNET Development Team.
+ *
+ * ---------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of GLPI.
+ *
+ * GLPI is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * GLPI is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GLPI. If not, see <http://www.gnu.org/licenses/>.
+ * ---------------------------------------------------------------------
  */
 
 /** @file
 * @brief
 */
+
+use Glpi\Event;
 
 if (!defined('GLPI_ROOT')) {
    die("Sorry. You can't access this file directly");
@@ -153,8 +154,6 @@ class Central extends CommonGLPI {
 
       $showproblem = Session::haveRightsOr('problem', array(Problem::READALL, Problem::READMY));
 
-      $showsurvey  = Session::haveRight('ticket', Ticket::SURVEY);
-
       echo "<table class='tab_cadre_central'>";
 
       Plugin::doHook('display_central');
@@ -163,7 +162,7 @@ class Central extends CommonGLPI {
          $logins = User::checkDefaultPasswords();
          $user   = new User();
          if (!empty($logins)) {
-            $accouts = array();
+            $accounts = array();
             foreach ($logins as $login) {
                $user->getFromDBbyName($login);
                $accounts[] = $user->getLink();
@@ -208,7 +207,6 @@ class Central extends CommonGLPI {
          }
       }
 
-
       if ($DB->isSlave()
           && !$DB->first_connection) {
          echo "<tr><th colspan='2'>";
@@ -219,7 +217,7 @@ class Central extends CommonGLPI {
       echo "<tr class='noHover'><td class='top' width='50%'><table class='central'>";
       echo "<tr class='noHover'><td>";
       if (Session::haveRightsOr('ticketvalidation', TicketValidation::getValidateRights())) {
-         Ticket::showCentralList(0,"tovalidate",false);
+         Ticket::showCentralList(0, "tovalidate", false);
       }
       if ($showticket) {
 
@@ -227,9 +225,7 @@ class Central extends CommonGLPI {
             Ticket::showCentralList(0, "toapprove", false);
          }
 
-         if ($showsurvey) {
-            Ticket::showCentralList(0, "survey", false);
-         }
+         Ticket::showCentralList(0, "survey", false);
 
          Ticket::showCentralList(0, "rejected", false);
          Ticket::showCentralList(0, "requestbyself", false);
@@ -315,4 +311,3 @@ class Central extends CommonGLPI {
    }
 
 }
-?>

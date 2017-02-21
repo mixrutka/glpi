@@ -1,34 +1,33 @@
 <?php
-/*
- * @version $Id$
- -------------------------------------------------------------------------
- GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2015 Teclib'.
-
- http://glpi-project.org
-
- based on GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2003-2014 by the INDEPNET Development Team.
-
- -------------------------------------------------------------------------
-
- LICENSE
-
- This file is part of GLPI.
-
- GLPI is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
-
- GLPI is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with GLPI. If not, see <http://www.gnu.org/licenses/>.
- --------------------------------------------------------------------------
+/**
+ * ---------------------------------------------------------------------
+ * GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2015-2017 Teclib' and contributors.
+ *
+ * http://glpi-project.org
+ *
+ * based on GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2003-2014 by the INDEPNET Development Team.
+ *
+ * ---------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of GLPI.
+ *
+ * GLPI is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * GLPI is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GLPI. If not, see <http://www.gnu.org/licenses/>.
+ * ---------------------------------------------------------------------
  */
 
 /** @file
@@ -37,7 +36,7 @@
 */
 
 // Direct access to file
-if (strpos($_SERVER['PHP_SELF'],"getDropdownUsers.php")) {
+if (strpos($_SERVER['PHP_SELF'], "getDropdownUsers.php")) {
    $AJAX_INCLUDE = 1;
    include ('../inc/includes.php');
    header("Content-Type: text/html; charset=UTF-8");
@@ -77,10 +76,16 @@ if (!isset($_POST['page'])) {
    $_POST['page_limit'] = $CFG_GLPI['dropdown_max'];
 }
 
+$entity_restrict = -1;
+if (isset($_POST['entity_restrict'])) {
+   $entity_restrict = Toolbox::jsonDecode($_POST['entity_restrict']);
+}
+
 if ($one_item < 0) {
    $start  = intval(($_POST['page']-1)*$_POST['page_limit']);
-   $result = User::getSqlSearchResult(false, $_POST['right'], $_POST["entity_restrict"],
-                                      $_POST['value'], $used, $_POST['searchText'], $start,
+   $searchText = (isset($_POST['searchText']) ? $_POST['searchText'] : null);
+   $result = User::getSqlSearchResult(false, $_POST['right'], $entity_restrict,
+                                      $_POST['value'], $used, $searchText, $start,
                                       intval($_POST['page_limit']));
 } else {
    $query = "SELECT DISTINCT `glpi_users`.*
@@ -146,4 +151,3 @@ if (($one_item >= 0)
    $ret['count']   = $count;
    echo json_encode($ret);
 }
-?>

@@ -1,29 +1,30 @@
 language: php
+php:
+  - 5.6
+  - 7.0
+  - 7.1
+  - nightly
 
 env:
   - DB=mysql
 
 before_script:
   - composer self-update
-  - composer install --no-dev
+  - sed -e '/"php":/d' -i composer.json
+  - rm -f composer.lock
+  - composer install --optimize-autoloader
   - mysql -u root -e 'create database glpitest;'
   - php tools/cliinstall.php --db=glpitest --user=root --tests
+  - php -S localhost:8088 tests/router.php &>/dev/null &
 
 script:
- - mysql -u root -e 'select version();'
- - phpunit --verbose
+  - mysql -u root -e 'select version();'
+  - vendor/bin/phpunit --verbose
+  - if [[ ${TRAVIS_PHP_VERSION:0:3} == "7.1" ]]; then vendor/bin/phpcs -p --standard=vendor/glpi-project/coding-standard/GlpiStandard/ --ignore=/vendor/,/plugins/,/files/,/lib/,/config/,/tests/config ./; fi
 
+#note: default maria version is 5.5 for all main php versions list exept nightly
 matrix:
   include:
-    - php: 5.4
-      addons:
-        mariadb: 5.5
-    - php: 5.5
-      addons:
-        mariadb: 5.5
-    - php: 5.6
-      addons:
-        mariadb: 5.5
     - php: 5.6
       addons:
         mariadb: 10.0
@@ -34,6 +35,12 @@ matrix:
       addons:
         mariadb: 10.0
     - php: 7.0
+      addons:
+        mariadb: 10.1
+    - php: 7.1
+      addons:
+        mariadb: 10.0
+    - php: 7.1
       addons:
         mariadb: 10.1
     - php: nightly
@@ -52,6 +59,8 @@ notifications:
       - "irc.freenode.org#glpi"
     on_success: change
     on_failure: always
+    use_notice: true
+    skip_join: true
 
 #exclude old branches, without tests
 branches:

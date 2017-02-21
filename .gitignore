@@ -1,6 +1,7 @@
 /.idea
 /config/config_db*
 /config/config_path.php
+/config/local_define.php
 /tests/config_db*
 /plugins/
 /files/
@@ -8,6 +9,7 @@
 /.project
 /.settings/
 /.vscode/
+/.idea/
 /tools/composer.lock
 /tools/vendor/
 /tools/api/
@@ -15,3 +17,11 @@
 /vendor/
 /nbproject/private/
 phpunit.xml
+/coverage/
+/config/based_config.php
+/config/config.php
+/config/define.php
+/nbproject
+.composer.hash
+/css/**/*.min.css
+/js/*.min.js

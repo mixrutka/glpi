@@ -1,34 +1,33 @@
 <?php
-/*
- * @version $Id$
- -------------------------------------------------------------------------
- GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2015 Teclib'.
-
- http://glpi-project.org
-
- based on GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2003-2014 by the INDEPNET Development Team.
-
- -------------------------------------------------------------------------
-
- LICENSE
-
- This file is part of GLPI.
-
- GLPI is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
-
- GLPI is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with GLPI. If not, see <http://www.gnu.org/licenses/>.
- --------------------------------------------------------------------------
+/**
+ * ---------------------------------------------------------------------
+ * GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2015-2017 Teclib' and contributors.
+ *
+ * http://glpi-project.org
+ *
+ * based on GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2003-2014 by the INDEPNET Development Team.
+ *
+ * ---------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of GLPI.
+ *
+ * GLPI is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * GLPI is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GLPI. If not, see <http://www.gnu.org/licenses/>.
+ * ---------------------------------------------------------------------
  */
 
 /** @file
@@ -152,30 +151,38 @@ class RuleCriteria extends CommonDBChild {
    }
 
 
-   function getSearchOptions() {
+   function getSearchOptionsNew() {
+      $tab = [];
 
-      $tab                     = array();
+      $tab[] = [
+         'id'                 => '1',
+         'table'              => $this->getTable(),
+         'field'              => 'criteria',
+         'name'               => __('Name'),
+         'massiveaction'      => false,
+         'datatype'           => 'specific',
+         'additionalfields'   => ['rules_id']
+      ];
 
-      $tab[1]['table']            = $this->getTable();
-      $tab[1]['field']            = 'criteria';
-      $tab[1]['name']             = __('Name');
-      $tab[1]['massiveaction']    = false;
-      $tab[1]['datatype']         = 'specific';
-      $tab[1]['additionalfields'] = array('rules_id');
+      $tab[] = [
+         'id'                 => '2',
+         'table'              => $this->getTable(),
+         'field'              => 'condition',
+         'name'               => __('Condition'),
+         'massiveaction'      => false,
+         'datatype'           => 'specific',
+         'additionalfields'   => ['rules_id', 'criteria']
+      ];
 
-      $tab[2]['table']            = $this->getTable();
-      $tab[2]['field']            = 'condition';
-      $tab[2]['name']             = __('Condition');
-      $tab[2]['massiveaction']    = false;
-      $tab[2]['datatype']         = 'specific';
-      $tab[2]['additionalfields'] = array('rules_id', 'criteria');
-
-      $tab[3]['table']            = $this->getTable();
-      $tab[3]['field']            = 'pattern';
-      $tab[3]['name']             = __('Reason');
-      $tab[3]['massiveaction']    = false;
-      $tab[3]['datatype']         = 'specific';
-      $tab[3]['additionalfields'] = array('rules_id', 'criteria', 'condition');
+      $tab[] = [
+         'id'                 => '3',
+         'table'              => $this->getTable(),
+         'field'              => 'pattern',
+         'name'               => __('Reason'),
+         'massiveaction'      => false,
+         'datatype'           => 'specific',
+         'additionalfields'   => ['rules_id', 'criteria', 'condition']
+      ];
 
       return $tab;
    }
@@ -448,12 +455,12 @@ class RuleCriteria extends CommonDBChild {
             $results = array();
             // Permit use < and >
             $pattern = Toolbox::unclean_cross_side_scripting_deep($pattern);
-            if (preg_match_all($pattern."i",$field,$results)>0) {
+            if (preg_match_all($pattern."i", $field, $results)>0) {
                // Drop $result[0] : complete match result
                array_shift($results);
                // And add to $regex_result array
                $res = array();
-               foreach($results as $data) {
+               foreach ($results as $data) {
                   $res[] = $data[0];
                }
                $regex_result[]               = $res;
@@ -563,7 +570,7 @@ class RuleCriteria extends CommonDBChild {
       $elements = array();
       foreach (self::getConditions($itemtype, $p['criterion']) as $pattern => $label) {
          if (empty($p['allow_conditions'])
-             || (!empty($p['allow_conditions']) && in_array($pattern,$p['allow_conditions']))) {
+             || (!empty($p['allow_conditions']) && in_array($pattern, $p['allow_conditions']))) {
             $elements[$pattern] = $label;
          }
       }
@@ -616,10 +623,11 @@ class RuleCriteria extends CommonDBChild {
          $params['condition'] = $this->fields['condition'];
          $params['pattern']   = $this->fields['pattern'];
          echo "<script type='text/javascript' >\n";
+         echo "$(function() {";
          Ajax::updateItemJsCode("criteria_span",
                                  $CFG_GLPI["root_doc"]."/ajax/rulecriteria.php",
                                  $params);
-         echo '</script>';
+         echo '});</script>';
       }
 
       if ($rule->specific_parameters) {
@@ -639,4 +647,3 @@ class RuleCriteria extends CommonDBChild {
    }
 
 }
-?>

@@ -1,33 +1,33 @@
 <?php
-/*
- -------------------------------------------------------------------------
- GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2015-2016 Teclib'.
-
- http://glpi-project.org
-
- based on GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2003-2014 by the INDEPNET Development Team.
-
- -------------------------------------------------------------------------
-
- LICENSE
-
- This file is part of GLPI.
-
- GLPI is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
-
- GLPI is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with GLPI. If not, see <http://www.gnu.org/licenses/>.
- --------------------------------------------------------------------------
+/**
+ * ---------------------------------------------------------------------
+ * GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2015-2017 Teclib' and contributors.
+ *
+ * http://glpi-project.org
+ *
+ * based on GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2003-2014 by the INDEPNET Development Team.
+ *
+ * ---------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of GLPI.
+ *
+ * GLPI is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * GLPI is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GLPI. If not, see <http://www.gnu.org/licenses/>.
+ * ---------------------------------------------------------------------
  */
 
 /** @file
@@ -158,27 +158,27 @@ class SlaLevel_Ticket extends CommonDBTM {
           && !$ticket->isDeleted()) {
 
          // search all actors of a ticket
-         foreach($ticket->getUsers(CommonITILActor::REQUESTER) as $user) {
+         foreach ($ticket->getUsers(CommonITILActor::REQUESTER) as $user) {
             $ticket->fields['_users_id_requester'][] = $user['users_id'];
          }
-         foreach($ticket->getUsers(CommonITILActor::ASSIGN) as $user) {
+         foreach ($ticket->getUsers(CommonITILActor::ASSIGN) as $user) {
             $ticket->fields['_users_id_assign'][] = $user['users_id'];
          }
-         foreach($ticket->getUsers(CommonITILActor::OBSERVER) as $user) {
+         foreach ($ticket->getUsers(CommonITILActor::OBSERVER) as $user) {
             $ticket->fields['_users_id_observer'][] = $user['users_id'];
          }
 
-         foreach($ticket->getGroups(CommonITILActor::REQUESTER) as $group) {
+         foreach ($ticket->getGroups(CommonITILActor::REQUESTER) as $group) {
             $ticket->fields['_groups_id_requester'][] = $group['groups_id'];
          }
-         foreach($ticket->getGroups(CommonITILActor::ASSIGN) as $group) {
+         foreach ($ticket->getGroups(CommonITILActor::ASSIGN) as $group) {
             $ticket->fields['_groups_id_assign'][] = $group['groups_id'];
          }
-         foreach($ticket->getGroups(CommonITILActor::OBSERVER) as $group) {
+         foreach ($ticket->getGroups(CommonITILActor::OBSERVER) as $group) {
             $ticket->fields['_groups_id_observer'][] = $group['groups_id'];
          }
 
-         foreach($ticket->getSuppliers(CommonITILActor::ASSIGN) as $supplier) {
+         foreach ($ticket->getSuppliers(CommonITILActor::ASSIGN) as $supplier) {
             $ticket->fields['_suppliers_id_assign'][] = $supplier['suppliers_id'];
          }
 

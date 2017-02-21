@@ -1,33 +1,33 @@
 <?php
-/*
- -------------------------------------------------------------------------
- GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2015-2016 Teclib'.
-
- http://glpi-project.org
-
- based on GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2003-2014 by the INDEPNET Development Team.
-
- -------------------------------------------------------------------------
-
- LICENSE
-
- This file is part of GLPI.
-
- GLPI is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
-
- GLPI is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with GLPI. If not, see <http://www.gnu.org/licenses/>.
- --------------------------------------------------------------------------
+/**
+ * ---------------------------------------------------------------------
+ * GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2015-2017 Teclib' and contributors.
+ *
+ * http://glpi-project.org
+ *
+ * based on GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2003-2014 by the INDEPNET Development Team.
+ *
+ * ---------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of GLPI.
+ *
+ * GLPI is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * GLPI is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GLPI. If not, see <http://www.gnu.org/licenses/>.
+ * ---------------------------------------------------------------------
  */
 
 /* Test for inc/db.function.php */
@@ -43,7 +43,8 @@ class DbFunctionTest extends DbTestCase {
       unset($CFG_GLPI['glpitablesitemtype']);
 
       // Pseudo plugin class for test
-      include_once 'fixtures/pluginfoobar.php';
+      require_once 'fixtures/pluginfoobar.php';
+      require_once 'fixtures/pluginbarfoo.php';
    }
 
 
@@ -55,6 +56,12 @@ class DbFunctionTest extends DbTestCase {
                    array('glpi_plugin_foo_bars', 'plugin_foo_bars_id'));
    }
 
+   public function dataTableForeignKey() {
+
+      return array(array('glpi_computers', 'computers_id'),
+                   array('glpi_users', 'users_id'),
+                   array('glpi_plugin_foo_bars', 'plugin_foo_bars_id'));
+   }
 
    /**
     * @covers ::getForeignKeyFieldForTable
@@ -67,13 +74,10 @@ class DbFunctionTest extends DbTestCase {
 
    /**
     * @covers ::isForeignKeyField
-    * @dataProvider dataTableKey
+    * @dataProvider dataTableForeignKey
    **/
    public function testIsForeignKeyFieldBase($table, $key) {
-
-      if ($key) {
-         $this->assertTrue(isForeignKeyField($key));
-      }
+      $this->assertTrue(isForeignKeyField($key));
    }
 
 
@@ -91,20 +95,20 @@ class DbFunctionTest extends DbTestCase {
 
    /**
     * @covers ::getTableNameForForeignKeyField
-    * @dataProvider dataTableKey
+    * @dataProvider dataTableForeignKey
    **/
    public function testGetTableNameForForeignKeyField($table, $key) {
-
-      if ($key) {
-         $this->assertEquals($table, getTableNameForForeignKeyField($key));
-      }
+      $this->assertEquals($table, getTableNameForForeignKeyField($key));
    }
 
 
    public function dataTableType() {
 
       return array(array('glpi_computers', 'Computer', true),
+                   array('glpi_events', 'Glpi\\Event', true),
                    array('glpi_users', 'User', true),
+                   array('glpi_plugin_bar_foos', 'GlpiPlugin\\Bar\\Foo', true),
+                   array('glpi_plugin_baz_foos', 'GlpiPlugin\\Baz\\Foo', false),
                    array('glpi_plugin_foo_bars', 'PluginFooBar', true),
                    array('glpi_plugin_foo_bazs', 'PluginFooBaz', false));
    }
@@ -188,7 +192,7 @@ class DbFunctionTest extends DbTestCase {
     * @covers ::countElementsInTable
    **/
    public function testCountElementsInTable() {
-   global $DB;
+      global $DB;
 
       //the case of using an element that is not a table is not handle in the function :
       //testCountElementsInTable($table, $condition="")
@@ -198,6 +202,10 @@ class DbFunctionTest extends DbTestCase {
       $this->assertEquals(1, countElementsInTable('glpi_configs', "context = 'core'
                                                    AND `name` = 'version'"));
       $this->assertEquals(0, countElementsInTable('glpi_configs', "context = 'fakecontext'"));
+      // Using iterator
+      $this->assertEquals(1, countElementsInTable('glpi_configs', ['context' => 'core', 'name' => 'version']));
+      $this->assertGreaterThan(100, countElementsInTable('glpi_configs', ['context' => 'core']));
+      $this->assertEquals(0, countElementsInTable('glpi_configs', ['context' => 'fakecontext']));
    }
 
 
@@ -205,13 +213,13 @@ class DbFunctionTest extends DbTestCase {
     * @covers ::countDistinctElementsInTable
    **/
    public function testCountDistinctElementsInTable() {
-   global $DB;
+      global $DB;
 
       //the case of using an element that is not a table is not handle in the function :
       //testCountElementsInTable($table, $condition="")
-      $this->assertGreaterThan(0, countDistinctElementsInTable('glpi_configs','id'));
-      $this->assertGreaterThan(0, countDistinctElementsInTable('glpi_configs','context'));
-      $this->assertEquals(1, countDistinctElementsInTable('glpi_configs','context',
+      $this->assertGreaterThan(0, countDistinctElementsInTable('glpi_configs', 'id'));
+      $this->assertGreaterThan(0, countDistinctElementsInTable('glpi_configs', 'context'));
+      $this->assertEquals(1, countDistinctElementsInTable('glpi_configs', 'context',
                                                           "name = 'version'"));
       $this->assertEquals(0, countDistinctElementsInTable('glpi_configs', 'id',
                                                           "context ='fakecontext'"));
@@ -226,18 +234,24 @@ class DbFunctionTest extends DbTestCase {
 
       $this->setEntity('_test_root_entity', true);
       $this->assertEquals(6, countElementsInTableForMyEntities('glpi_computers'));
-      $this->assertEquals(1, countElementsInTableForMyEntities('glpi_computers', 'name="_test_pc11"'));
+      $this->assertEquals(1, countElementsInTableForMyEntities('glpi_computers', 'name="_test_pc11"')); // SQL restrict
+      $this->assertEquals(1, countElementsInTableForMyEntities('glpi_computers', ['name' => '_test_pc11'])); // Criteria
       $this->assertEquals(1, countElementsInTableForMyEntities('glpi_computers', 'name="_test_pc01"'));
+      $this->assertEquals(1, countElementsInTableForMyEntities('glpi_computers', ['name' => '_test_pc01']));
 
       $this->setEntity('_test_root_entity', false);
       $this->assertEquals(2, countElementsInTableForMyEntities('glpi_computers'));
       $this->assertEquals(0, countElementsInTableForMyEntities('glpi_computers', 'name="_test_pc11"'));
+      $this->assertEquals(0, countElementsInTableForMyEntities('glpi_computers', ['name' => '_test_pc11']));
       $this->assertEquals(1, countElementsInTableForMyEntities('glpi_computers', 'name="_test_pc01"'));
+      $this->assertEquals(1, countElementsInTableForMyEntities('glpi_computers', ['name' => '_test_pc01']));
 
       $this->setEntity('_test_child_1', false);
       $this->assertEquals(2, countElementsInTableForMyEntities('glpi_computers'));
       $this->assertEquals(1, countElementsInTableForMyEntities('glpi_computers', 'name="_test_pc11"'));
+      $this->assertEquals(1, countElementsInTableForMyEntities('glpi_computers', ['name' => '_test_pc11']));
       $this->assertEquals(0, countElementsInTableForMyEntities('glpi_computers', 'name="_test_pc01"'));
+      $this->assertEquals(0, countElementsInTableForMyEntities('glpi_computers', ['name' => '_test_pc01']));
    }
 
    /**
@@ -261,8 +275,8 @@ class DbFunctionTest extends DbTestCase {
 
       $data = getAllDatasFromTable('glpi_configs');
       $this->assertTrue(is_array($data));
-      $this->assertGreaterThan(100,count($data));
-      foreach($data as $key => $array) {
+      $this->assertGreaterThan(100, count($data));
+      foreach ($data as $key => $array) {
          $this->assertTrue(is_array($array));
          $this->assertTrue($key == $array['id']);
       }
@@ -270,30 +284,12 @@ class DbFunctionTest extends DbTestCase {
       $data = getAllDatasFromTable('glpi_configs', "context = 'core' AND `name` = 'version'");
       $this->assertEquals(1, count($data));
 
-      $data = getAllDatasFromTable('glpi_configs',"", false,'name');
+      $data = getAllDatasFromTable('glpi_configs', "", false, 'name');
       $previousArrayName = "";
-      foreach($data as $key => $array) {
+      foreach ($data as $key => $array) {
          $this->assertTrue($previousArrayName <= $previousArrayName = $array['name']);
       }
    }
-
-
-/*
-TODO :
-getTreeLeafValueName
-getTreeValueCompleteName
-getTreeValueName
-getAncestorsOf
-getTreeForItem
-contructTreeFromList
-contructListFromTree
-getRealQueryForTreeItem
-regenerateTreeCompleteName
-getNextItem
-getPreviousItem
-formatUserName
-getUserName
-*/
 
 
    /**
@@ -311,10 +307,10 @@ getUserName
    **/
    public function testFieldExist() {
 
-      $this->assertTrue(FieldExists('glpi_configs','id'));
-      $this->assertFalse(FieldExists('glpi_configs','fakeField'));
-      $this->assertFalse(FieldExists('fakeTable','id'));
-      $this->assertFalse(FieldExists('fakeTable','fakeField'));
+      $this->assertTrue(FieldExists('glpi_configs', 'id'));
+      $this->assertFalse(FieldExists('glpi_configs', 'fakeField'));
+      $this->assertFalse(FieldExists('fakeTable', 'id'));
+      $this->assertFalse(FieldExists('fakeTable', 'fakeField'));
    }
 
 
@@ -323,25 +319,18 @@ getUserName
    **/
    public function testIsIndex() {
 
-      $this->assertFalse(isIndex('glpi_configs','fakeField'));
-      $this->assertFalse(isIndex('fakeTable','id'));
-      $this->assertFalse(isIndex('glpi_configs','name'));
-      $this->assertTrue(isIndex('glpi_users','locations_id'));
-      $this->assertTrue(isIndex('glpi_users','unicity'));
+      $this->assertFalse(isIndex('glpi_configs', 'fakeField'));
+      $this->assertFalse(isIndex('fakeTable', 'id'));
+      $this->assertFalse(isIndex('glpi_configs', 'name'));
+      $this->assertTrue(isIndex('glpi_users', 'locations_id'));
+      $this->assertTrue(isIndex('glpi_users', 'unicity'));
    }
-
-
- /*
- TODO :
-    autoName
-    closeDBConnections
-*/
 
 
    /**
     * @covers ::formatOutputWebLink
    **/
-   public function testFormatOutputWebLink(){
+   public function testFormatOutputWebLink() {
 
       $this->assertEquals('http://www.glpi-project.org/',
                           formatOutputWebLink('www.glpi-project.org/'));
@@ -349,14 +338,96 @@ getUserName
                           formatOutputWebLink('http://www.glpi-project.org/'));
    }
 
-/*
-TODO :
-   getDateRequest
-   exportArrayToDB
-   importArrayFromDB
-   get_hour_from_sql
-   getDbRelations
-   getEntitiesRestrictRequest
-*/
 
+   /**
+    *@covers ::getEntitiesRestrictRequest
+    *@covers ::getEntitiesRestrictCriteria
+    */
+   public function testGetEntityRestrict() {
+      $this->Login();
+
+      // See all, really all
+      $_SESSION['glpishowallentities'] = 1; // will be restored by setEntity call
+      $this->assertEmpty(getEntitiesRestrictRequest('AND', 'glpi_computers'));
+      $it = new DBmysqlIterator(NULL, 'glpi_computers', getEntitiesRestrictCriteria('glpi_computers'));
+      $this->assertEquals('SELECT * FROM `glpi_computers`', $it->getSql());
+
+      // See all
+      $this->setEntity('_test_root_entity', true);
+      $this->assertEquals("WHERE ( `glpi_computers`.`entities_id` IN ('1', '2', '3')  ) ",
+                          getEntitiesRestrictRequest('WHERE', 'glpi_computers'));
+      $it = new DBmysqlIterator(NULL, 'glpi_computers', getEntitiesRestrictCriteria('glpi_computers'));
+      $this->assertEquals('SELECT * FROM `glpi_computers` WHERE `glpi_computers`.`entities_id` IN (1, 2, 3)', $it->getSql());
+
+      // Root entity
+      $this->setEntity('_test_root_entity', false);
+      $this->assertEquals("WHERE ( `glpi_computers`.`entities_id` IN ('1')  ) ",
+                          getEntitiesRestrictRequest('WHERE', 'glpi_computers'));
+      $it = new DBmysqlIterator(NULL, 'glpi_computers', getEntitiesRestrictCriteria('glpi_computers'));
+      $this->assertEquals('SELECT * FROM `glpi_computers` WHERE `glpi_computers`.`entities_id` IN (1)', $it->getSql());
+
+      // Child
+      $this->setEntity('_test_child_1', false);
+      $this->assertEquals("WHERE ( `glpi_computers`.`entities_id` IN ('2')  ) ",
+                          getEntitiesRestrictRequest('WHERE', 'glpi_computers'));
+      $it = new DBmysqlIterator(NULL, 'glpi_computers', getEntitiesRestrictCriteria('glpi_computers'));
+      $this->assertEquals('SELECT * FROM `glpi_computers` WHERE `glpi_computers`.`entities_id` IN (2)', $it->getSql());
+
+      // Child without table
+      $this->assertEquals("WHERE ( `entities_id` IN ('2')  ) ",
+            getEntitiesRestrictRequest('WHERE'));
+      $it = new DBmysqlIterator(NULL, 'glpi_computers', getEntitiesRestrictCriteria());
+      $this->assertEquals('SELECT * FROM `glpi_computers` WHERE `entities_id` IN (2)', $it->getSql());
+
+      // Child + parent
+      $this->setEntity('_test_child_2', false);
+      $this->assertEquals("WHERE ( `glpi_computers`.`entities_id` IN ('3')  OR (`glpi_computers`.`is_recursive`='1' AND `glpi_computers`.`entities_id` IN ('0','1')) ) ",
+                          getEntitiesRestrictRequest('WHERE', 'glpi_computers', '', '', true));
+      $it = new DBmysqlIterator(NULL, 'glpi_computers', getEntitiesRestrictCriteria('glpi_computers', '', '', true));
+      $this->assertEquals('SELECT * FROM `glpi_computers` WHERE (`glpi_computers`.`entities_id` IN (3) OR (`glpi_computers`.`is_recursive` = 1 AND `glpi_computers`.`entities_id` IN (0, 1)))', $it->getSql());
+
+      //Child + parent on glpi_entities
+      $it = new DBmysqlIterator(NULL, 'glpi_entities', getEntitiesRestrictCriteria('glpi_entities', '', '', true));
+      $this->assertEquals('SELECT * FROM `glpi_entities` WHERE (`glpi_entities`.`id` IN (3, 0, 1))', $it->getSql());
+
+      //Child + parent -- automatic recusrivity detection
+      $it = new DBmysqlIterator(NULL, 'glpi_computers', getEntitiesRestrictCriteria('glpi_computers', '', '', 'auto'));
+      $this->assertEquals('SELECT * FROM `glpi_computers` WHERE (`glpi_computers`.`entities_id` IN (3) OR (`glpi_computers`.`is_recursive` = 1 AND `glpi_computers`.`entities_id` IN (0, 1)))', $it->getSql());
+
+      // Child + parent without table
+      $this->assertEquals("WHERE ( `entities_id` IN ('3')  OR (`is_recursive`='1' AND `entities_id` IN ('0','1')) ) ",
+                          getEntitiesRestrictRequest('WHERE', '', '', '', true));
+      $it = new DBmysqlIterator(NULL, 'glpi_computers', getEntitiesRestrictCriteria('', '', '', true));
+      $this->assertEquals('SELECT * FROM `glpi_computers` WHERE (`entities_id` IN (3) OR (`is_recursive` = 1 AND `entities_id` IN (0, 1)))', $it->getSql());
+
+      $it = new DBmysqlIterator(NULL, 'glpi_entities', getEntitiesRestrictCriteria('glpi_entities', '', 3, true));
+      $this->assertEquals('SELECT * FROM `glpi_entities` WHERE (`glpi_entities`.`id` IN (3, 0, 1))', $it->getSql());
+
+      $it = new DBmysqlIterator(NULL, 'glpi_entities', getEntitiesRestrictCriteria('glpi_entities', '', 7, true));
+      $this->assertEquals('SELECT * FROM `glpi_entities` WHERE `glpi_entities`.`id` = 7', $it->getSql());
+
+   }
 }
+
+/*
+ TODO :
+ getTreeLeafValueName
+ getTreeValueName
+ getAncestorsOf
+ getTreeForItem
+ contructTreeFromList
+ contructListFromTree
+ getRealQueryForTreeItem
+ regenerateTreeCompleteName
+ getNextItem
+ getPreviousItem
+ formatUserName
+ getUserName
+ autoName
+ closeDBConnections
+ getDateRequest
+ exportArrayToDB
+ importArrayFromDB
+ get_hour_from_sql
+ getDbRelations
+ */

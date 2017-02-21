@@ -1,33 +1,33 @@
 <?php
-/*
- -------------------------------------------------------------------------
- GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2015-2016 Teclib'.
-
- http://glpi-project.org
-
- based on GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2003-2014 by the INDEPNET Development Team.
-
- -------------------------------------------------------------------------
-
- LICENSE
-
- This file is part of GLPI.
-
- GLPI is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
-
- GLPI is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with GLPI. If not, see <http://www.gnu.org/licenses/>.
- --------------------------------------------------------------------------
+/**
+ * ---------------------------------------------------------------------
+ * GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2015-2017 Teclib' and contributors.
+ *
+ * http://glpi-project.org
+ *
+ * based on GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2003-2014 by the INDEPNET Development Team.
+ *
+ * ---------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of GLPI.
+ *
+ * GLPI is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * GLPI is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GLPI. If not, see <http://www.gnu.org/licenses/>.
+ * ---------------------------------------------------------------------
  */
 
 /** @file
@@ -83,7 +83,7 @@ class NetworkPortInstantiation extends CommonDBChild {
     * @param $options         array of options given to NetworkPort::showForm
     * @param $recursiveItems        list of the items on which this port is attached
    **/
-   function showInstantiationForm(NetworkPort $netport, $options=array(), $recursiveItems) {
+   function showInstantiationForm(NetworkPort $netport, $options, $recursiveItems) {
 
       echo "<tr><td colspan='4' class='center'>".__('No options available for this port type.').
            "</td></tr>";
@@ -94,7 +94,7 @@ class NetworkPortInstantiation extends CommonDBChild {
 
       // Try to get mac address from the instantiation ...
       if (!empty($input['mac'])) {
-         $input['mac'] = strtolower($input['mac']) ;
+         $input['mac'] = strtolower($input['mac']);
       }
       return $input;
    }
@@ -247,7 +247,7 @@ class NetworkPortInstantiation extends CommonDBChild {
          } else {
             $cell = $row->addCell($row->getHeaderByName('Instantiation', 'Connected'),
                                   $connect_cell_value);
-          }
+         }
 
       } else {
          $cell = $row->addCell($row->getHeaderByName('Instantiation', 'Connected'),
@@ -337,12 +337,11 @@ class NetworkPortInstantiation extends CommonDBChild {
          NetworkName::getHTMLTableCellsForItem($row, $netport, $father, $options);
       }
 
-
       return NULL;
    }
 
 
-  /**
+   /**
     * Get all NetworkPort and NetworkEquipments that have a specific MAC address
     *
     * @param $mac                      address to search
@@ -453,7 +452,7 @@ class NetworkPortInstantiation extends CommonDBChild {
     * @param $options         array of options given to NetworkPort::showForm
     * @param $recursiveItems        list of the items on which this port is attached
    **/
-   function showNetworkCardField(NetworkPort $netport, $options=array(), $recursiveItems) {
+   function showNetworkCardField(NetworkPort $netport, $options=[], $recursiveItems=[]) {
       global $DB;
 
       echo "<td>" . __('Network card') . "</td>\n";
@@ -562,7 +561,7 @@ class NetworkPortInstantiation extends CommonDBChild {
     * @param $options         array of options given to NetworkPort::showForm
     * @param $recursiveItems        list of the items on which this port is attached
    **/
-   function showNetpointField(NetworkPort $netport, $options=array(), $recursiveItems) {
+   function showNetpointField(NetworkPort $netport, $options=[], $recursiveItems=[]) {
 
       echo "<td>" . __('Network outlet') . "</td>\n";
       echo "<td>";
@@ -741,10 +740,8 @@ class NetworkPortInstantiation extends CommonDBChild {
    /**
     * @param $tab          array
     * @param $joinparams   array
-    * @param $itemtype
     **/
-   static function getSearchOptionsToAddForInstantiation(array &$tab, array $joinparams,
-                                                         $itemtype) {
+   static function getSearchOptionsToAddForInstantiation(array &$tab, array $joinparams) {
    }
 
 
@@ -849,7 +846,7 @@ class NetworkPortInstantiation extends CommonDBChild {
       $p['entity']      = -1;
       $p['entity_sons'] = false;
 
-     if (is_array($options) && count($options)) {
+      if (is_array($options) && count($options)) {
          foreach ($options as $key => $val) {
             $p[$key] = $val;
          }
@@ -865,7 +862,7 @@ class NetworkPortInstantiation extends CommonDBChild {
       }
 
       echo "<input type='hidden' name='NetworkPortConnect_networkports_id_1'value='$ID'>";
-      $rand = Dropdown::showItemTypes('NetworkPortConnect_itemtype',$CFG_GLPI["networkport_types"] );
+      $rand = Dropdown::showItemTypes('NetworkPortConnect_itemtype', $CFG_GLPI["networkport_types"] );
 
       $params = array('itemtype'           => '__VALUE__',
                       'entity_restrict'    => $p['entity'],

@@ -1,34 +1,33 @@
 <?php
-/*
- * @version $Id$
- -------------------------------------------------------------------------
- GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2015 Teclib'.
-
- http://glpi-project.org
-
- based on GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2003-2014 by the INDEPNET Development Team.
- 
- -------------------------------------------------------------------------
-
- LICENSE
-
- This file is part of GLPI.
-
- GLPI is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
-
- GLPI is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with GLPI. If not, see <http://www.gnu.org/licenses/>.
- --------------------------------------------------------------------------
+/**
+ * ---------------------------------------------------------------------
+ * GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2015-2017 Teclib' and contributors.
+ *
+ * http://glpi-project.org
+ *
+ * based on GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2003-2014 by the INDEPNET Development Team.
+ *
+ * ---------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of GLPI.
+ *
+ * GLPI is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * GLPI is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GLPI. If not, see <http://www.gnu.org/licenses/>.
+ * ---------------------------------------------------------------------
  */
 
 /** @file
@@ -61,7 +60,7 @@ class Problem_Ticket extends CommonDBRelation{
 
 
    static function getTypeName($nb=0) {
-      return _n('Link Ticket/Problem','Links Ticket/Problem',$nb);
+      return _n('Link Ticket/Problem', 'Links Ticket/Problem', $nb);
    }
 
 
@@ -76,14 +75,14 @@ class Problem_Ticket extends CommonDBRelation{
             case 'Ticket' :
                if ($_SESSION['glpishow_count_on_tabs']) {
                   $nb = countElementsInTable('glpi_problems_tickets',
-                                             "`tickets_id` = '".$item->getID()."'");
+                                             ['tickets_id' => $item->getID()]);
                }
                return self::createTabEntry(Problem::getTypeName(Session::getPluralNumber()), $nb);
 
             case 'Problem' :
                if ($_SESSION['glpishow_count_on_tabs']) {
                   $nb = countElementsInTable('glpi_problems_tickets',
-                                             "`problems_id` = '".$item->getID()."'");
+                                             ['problems_id' => $item->getID()]);
                }
                return self::createTabEntry(Ticket::getTypeName(Session::getPluralNumber()), $nb);
          }
@@ -108,16 +107,6 @@ class Problem_Ticket extends CommonDBRelation{
 
 
    /**
-    * Get search function for the class
-    *
-    * @return array of search option
-    */
-   function getSearchOptions() {
-      return parent::getSearchOptions();
-   }
-
-
-   /**
     * @since version 0.84
    **/
    function post_addItem() {
@@ -125,9 +114,6 @@ class Problem_Ticket extends CommonDBRelation{
 
       $donotif = $CFG_GLPI["use_mailing"];
 
-//       if (isset($this->input["_no_notif"]) && $this->input["_no_notif"]) {
-//          $donotif = false;
-//       }
       if ($donotif) {
          $problem = new Problem();
          if ($problem->getFromDB($this->input["problems_id"])) {
@@ -148,9 +134,6 @@ class Problem_Ticket extends CommonDBRelation{
 
       $donotif = $CFG_GLPI["use_mailing"];
 
-//       if (isset($this->input["_no_notif"]) && $this->input["_no_notif"]) {
-//          $donotif = false;
-//       }
       if ($donotif) {
          $problem = new Problem();
          if ($problem->getFromDB($this->fields["problems_id"])) {
@@ -179,14 +162,14 @@ class Problem_Ticket extends CommonDBRelation{
                return true;
             }
             return false;
-            
+
          case "solveticket" :
             $problem = new Problem();
             $input = $ma->getInput();
             if (isset($input['problems_id']) && $problem->getFromDB($input['problems_id'])) {
                Ticket::showMassiveSolutionForm($problem->getEntityID());
                echo "<br><br>";
-               echo Html::submit(_x('button','Post'), array('name' => 'massiveaction'));
+               echo Html::submit(_x('button', 'Post'), array('name' => 'massiveaction'));
                return true;
             }
             return false;
@@ -239,7 +222,7 @@ class Problem_Ticket extends CommonDBRelation{
                }
             }
             return;
-            
+
          case 'solveticket' :
             $input  = $ma->getInput();
             $ticket = new Ticket();
@@ -299,7 +282,6 @@ class Problem_Ticket extends CommonDBRelation{
                 ORDER BY `glpi_tickets`.`name`";
       $result = $DB->query($query);
 
-
       $tickets = array();
       $used    = array();
       if ($numrows = $DB->numrows($result)) {
@@ -328,7 +310,7 @@ class Problem_Ticket extends CommonDBRelation{
                                 'condition'   => $condition,
                                 'displaywith' => array('id')));
          echo "</td><td class='center'>";
-         echo "<input type='submit' name='add' value=\""._sx('button','Add')."\" class='submit'>";
+         echo "<input type='submit' name='add' value=\""._sx('button', 'Add')."\" class='submit'>";
          echo "</td></tr>";
 
          echo "</table>";
@@ -346,7 +328,7 @@ class Problem_Ticket extends CommonDBRelation{
                                                                           'Delete permanently'),
                                                                   __CLASS__.MassiveAction::CLASS_ACTION_SEPARATOR.'solveticket'
                                                                     => __('Solve tickets'),
-                                                                  __CLASS__.MassiveAction::CLASS_ACTION_SEPARATOR.'add_task' 
+                                                                  __CLASS__.MassiveAction::CLASS_ACTION_SEPARATOR.'add_task'
                                                                     => __('Add a new task')),
                                       'extraparams'      => array('problems_id' => $problem->getID()),
                                       'width'            => 1000,
@@ -357,7 +339,7 @@ class Problem_Ticket extends CommonDBRelation{
       echo "<tr class='noHover'><th colspan='12'>".Ticket::getTypeName($numrows)."</th>";
       echo "</tr>";
       if ($numrows) {
-         Ticket::commonListHeader(Search::HTML_OUTPUT,'mass'.__CLASS__.$rand);
+         Ticket::commonListHeader(Search::HTML_OUTPUT, 'mass'.__CLASS__.$rand);
          Session::initNavigateListItems('Ticket',
                                  //TRANS : %1$s is the itemtype name,
                                  //        %2$s is the name of the item (used for headings of a list)
@@ -373,7 +355,7 @@ class Problem_Ticket extends CommonDBRelation{
                                                  'id_for_massiveaction'   => $data['linkID']));
             $i++;
          }
-         Ticket::commonListHeader(Search::HTML_OUTPUT,'mass'.__CLASS__.$rand);
+         Ticket::commonListHeader(Search::HTML_OUTPUT, 'mass'.__CLASS__.$rand);
       }
       echo "</table>";
       if ($canedit && $numrows) {
@@ -438,7 +420,7 @@ class Problem_Ticket extends CommonDBRelation{
                                  'entity'    => $ticket->getEntityID(),
                                  'condition' => $condition));
          echo "</td><td class='center'>";
-         echo "<input type='submit' name='add' value=\""._sx('button','Add')."\" class='submit'>";
+         echo "<input type='submit' name='add' value=\""._sx('button', 'Add')."\" class='submit'>";
          echo "</td><td>";
          echo "<a href='".Toolbox::getItemTypeFormURL('Problem')."?tickets_id=$ID'>";
          _e('Create a problem from this ticket');
@@ -460,7 +442,7 @@ class Problem_Ticket extends CommonDBRelation{
       echo "<tr class='noHover'><th colspan='12'>".Problem::getTypeName($numrows)."</th>";
       echo "</tr>";
       if ($numrows) {
-         Problem::commonListHeader(Search::HTML_OUTPUT,'mass'.__CLASS__.$rand);
+         Problem::commonListHeader(Search::HTML_OUTPUT, 'mass'.__CLASS__.$rand);
          Session::initNavigateListItems('Problem',
                               //TRANS : %1$s is the itemtype name,
                               //        %2$s is the name of the item (used for headings of a list)
@@ -475,7 +457,7 @@ class Problem_Ticket extends CommonDBRelation{
                                                   'id_for_massiveaction'   => $data['linkID']));
             $i++;
          }
-         Problem::commonListHeader(Search::HTML_OUTPUT,'mass'.__CLASS__.$rand);
+         Problem::commonListHeader(Search::HTML_OUTPUT, 'mass'.__CLASS__.$rand);
       }
 
       echo "</table>";
@@ -489,4 +471,3 @@ class Problem_Ticket extends CommonDBRelation{
 
 
 }
-?>

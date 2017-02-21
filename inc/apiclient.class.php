@@ -1,41 +1,41 @@
 <?php
-/*
- * @version $Id$
- -------------------------------------------------------------------------
- GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2015 Teclib'.
-
- http://glpi-project.org
-
- based on GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2003-2014 by the INDEPNET Development Team.
-
- -------------------------------------------------------------------------
-
- LICENSE
-
- This file is part of GLPI.
-
- GLPI is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
-
- GLPI is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with GLPI. If not, see <http://www.gnu.org/licenses/>.
- --------------------------------------------------------------------------
+/**
+ * ---------------------------------------------------------------------
+ * GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2015-2017 Teclib' and contributors.
+ *
+ * http://glpi-project.org
+ *
+ * based on GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2003-2014 by the INDEPNET Development Team.
+ *
+ * ---------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of GLPI.
+ *
+ * GLPI is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * GLPI is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GLPI. If not, see <http://www.gnu.org/licenses/>.
+ * ---------------------------------------------------------------------
  */
 
 /** @file
-* @brief
+* @since version 9.1
 */
 
 class APIClient extends CommonDBTM {
+
    const DOLOG_DISABLED   = 0;
    const DOLOG_LOGS       = 1;
    const DOLOG_HISTORICAL = 2;
@@ -57,10 +57,7 @@ class APIClient extends CommonDBTM {
       return _n("API client", "API clients", $nb);
    }
 
-   /**
-    * @see CommonGLPI::defineTabs()
-   **/
-   function defineTabs($options=array()) {
+   function defineTabs($options = array()) {
 
       $ong = array();
       $this->addDefaultFormTab($ong)
@@ -69,63 +66,95 @@ class APIClient extends CommonDBTM {
       return $ong;
    }
 
-   function getSearchOptions() {
-      $tab = array();
+   function getSearchOptionsNew() {
+      $tab = [];
 
-      $tab['common']             = self::GetTypeName();
+      $tab[] = [
+         'id'                 => 'common',
+         'name'               => self::GetTypeName()
+      ];
 
-      $tab[1]['table']           = $this->getTable();
-      $tab[1]['field']           = 'name';
-      $tab[1]['name']            = __('Name');
-      $tab[1]['datatype']        = 'itemlink';
+      $tab[] = [
+         'id'                 => '1',
+         'table'              => $this->getTable(),
+         'field'              => 'name',
+         'name'               => __('Name'),
+         'datatype'           => 'itemlink'
+      ];
 
-      $tab[2]['table']           = $this->getTable();
-      $tab[2]['field']           = 'id';
-      $tab[2]['name']            = __('ID');
-      $tab[2]['massiveaction']   = false;
-      $tab[2]['datatype']        = 'number';
+      $tab[] = [
+         'id'                 => '2',
+         'table'              => $this->getTable(),
+         'field'              => 'id',
+         'name'               => __('ID'),
+         'massiveaction'      => false,
+         'datatype'           => 'number'
+      ];
 
-      $tab[3]['table']           = $this->getTable();
-      $tab[3]['field']           = 'is_active';
-      $tab[3]['name']            = __('Active');
-      $tab[3]['datatype']        = 'bool';
+      $tab[] = [
+         'id'                 => '3',
+         'table'              => $this->getTable(),
+         'field'              => 'is_active',
+         'name'               => __('Active'),
+         'datatype'           => 'bool'
+      ];
 
-      $tab[4]['table']           = $this->getTable();
-      $tab[4]['field']           = 'dolog_method';
-      $tab[4]['name']            = __('Log connections');
-      $tab[4]['datatype']        = 'specific';
+      $tab[] = [
+         'id'                 => '4',
+         'table'              => $this->getTable(),
+         'field'              => 'dolog_method',
+         'name'               => __('Log connections'),
+         'datatype'           => 'specific'
+      ];
 
-      $tab['filter']             = __("Filter access");
+      $tab[] = [
+         'id'                 => 'filter',
+         'name'               => __('Filter access')
+      ];
 
-      $tab[5]['table']           = $this->getTable();
-      $tab[5]['field']           = 'ipv4_range_start';
-      $tab[5]['name']            = __('IPv4 address range')." - ".__("Start");
-      $tab[5]['datatype']        = 'specific';
+      $tab[] = [
+         'id'                 => '5',
+         'table'              => $this->getTable(),
+         'field'              => 'ipv4_range_start',
+         'name'               => __('IPv4 address range')." - ".__("Start"),
+         'datatype'           => 'specific'
+      ];
 
-      $tab[6]['table']           = $this->getTable();
-      $tab[6]['field']           = 'ipv4_range_end';
-      $tab[6]['name']            = __('IPv4 address range')." - ".__("End");
-      $tab[6]['datatype']        = 'specific';
+      $tab[] = [
+         'id'                 => '6',
+         'table'              => $this->getTable(),
+         'field'              => 'ipv4_range_end',
+         'name'               => __('IPv4 address range')." - ".__("End"),
+         'datatype'           => 'specific'
+      ];
 
-      $tab[7]['table']           = $this->getTable();
-      $tab[7]['field']           = 'ipv6';
-      $tab[7]['name']            = __('IPv6 address');
-      $tab[7]['datatype']        = 'text';
+      $tab[] = [
+         'id'                 => '7',
+         'table'              => $this->getTable(),
+         'field'              => 'ipv6',
+         'name'               => __('IPv6 address'),
+         'datatype'           => 'text'
+      ];
 
-      $tab[8]['table']           = $this->getTable();
-      $tab[8]['field']           = 'app_token';
-      $tab[8]['name']            = __('Application token');
-      $tab[8]['massiveaction']   = false;
-      $tab[8]['datatype']        = 'text';
+      $tab[] = [
+         'id'                 => '8',
+         'table'              => $this->getTable(),
+         'field'              => 'app_token',
+         'name'               => __('Application token'),
+         'massiveaction'      => false,
+         'datatype'           => 'text'
+      ];
 
       return $tab;
    }
 
-   static function getSpecificValueToDisplay($field, $values, array $options=array()) {
+   static function getSpecificValueToDisplay($field, $values, array $options = array()) {
+
       switch ($field) {
-         case 'dolog_method':
+         case 'dolog_method' :
             $methods = self::getLogMethod();
             return $methods[$values[$field]];
+
          case 'ipv4_range_start':
          case 'ipv4_range_end':
             return long2ip($values[$field]);
@@ -134,6 +163,14 @@ class APIClient extends CommonDBTM {
       return parent::getSpecificValueToDisplay($field, $values, $options);
    }
 
+   /**
+    * Show form
+    *
+    * @param integer $ID      Item ID
+    * @param array   $options Options
+    *
+    * @return void
+    */
    function showForm ($ID, $options=array()) {
 
       $this->initForm($ID, $options);
@@ -147,15 +184,13 @@ class APIClient extends CommonDBTM {
       echo "<td rowspan='3'>".__('Comments')."</td>";
       echo "<td rowspan='3'>";
       echo "<textarea name='comment' >".$this->fields["comment"]."</textarea>";
-      echo "</td>";
-      echo "</tr>";
+      echo "</td></tr>";
 
       echo "<tr class='tab_bg_1'>";
       echo "<td >".__('Active')."</td>";
       echo "<td>";
-      Dropdown::showYesNo("is_active",$this->fields["is_active"]);
-      echo "</td>";
-      echo "</tr>";
+      Dropdown::showYesNo("is_active", $this->fields["is_active"]);
+      echo "</td></tr>";
 
       echo "<tr class='tab_bg_1'>";
       echo "<td >".__('Log connections')."</td>";
@@ -163,22 +198,18 @@ class APIClient extends CommonDBTM {
       Dropdown::showFromArray("dolog_method",
                               self::getLogMethod(),
                               array('value' => $this->fields["dolog_method"]));
-      echo "</td>";
-      echo "</tr>";
+      echo "</td></tr>";
 
       echo "<tr class='tab_bg_1'>";
       echo "<th colspan='4'>";
-      echo "<div class='center'>";
-      echo __("Filter access");
-      echo "</div>";
-      echo "</th>";
-      echo "</tr>";
+      echo "<div class='center'>". __("Filter access")."</div>";
+      echo "</th></tr>";
+
       echo "<tr class='tab_bg_1'>";
       echo "<td colspan='4'>";
       echo "<i>".__('Leave these parameters empty to disable api access restriction')."</i>";
       echo "<br><br><br>";
-      echo "</td>";
-      echo "</tr>";
+      echo "</td></tr>";
 
       echo "<tr class='tab_bg_1'>";
       echo "<td>".__('IPv4 address range')."</td>";
@@ -189,20 +220,16 @@ class APIClient extends CommonDBTM {
       echo "<input type='text' name='ipv4_range_end' value='" .
             ($this->fields["ipv4_range_end"] ? long2ip($this->fields["ipv4_range_end"]) : '') .
             "' size='17'>";
-      echo "</td>";
-      echo "</tr>";
+      echo "</td></tr>";
 
       echo "<tr class='tab_bg_1'>";
       echo "<td>".__('IPv6 address')."</td>";
       echo "<td>";
       Html::autocompletionTextField($this, "ipv6");
-      echo "</td>";
-      echo "</tr>";
+      echo "</td></tr>";
 
       echo "<tr class='tab_bg_1'>";
-      echo "<td>";
-      echo __('Application token')." (app_token)";
-      echo "</td>";
+      echo "<td>".sprintf(__('%1$s (%2$s)'), __('Application token'), "app_token")."</td>";
       echo "<td colspan='2'>";
       Html::autocompletionTextField($this, "app_token");
       echo "<br><input type='checkbox' name='_reset_app_token' id='app_token'>&nbsp;";
@@ -216,8 +243,8 @@ class APIClient extends CommonDBTM {
       return $this->prepareInputForUpdate($input);
    }
 
-
    function prepareInputForUpdate($input) {
+
       if (isset($input['ipv4_range_start'])) {
          $input['ipv4_range_start'] = ip2long($input['ipv4_range_start']);
       }
@@ -251,7 +278,13 @@ class APIClient extends CommonDBTM {
       return $input;
    }
 
+   /**
+    * Get log methods
+    *
+    * @return array
+    */
    static function getLogMethod() {
+
       return array(self::DOLOG_DISABLED   => __('Disabled'),
                    self::DOLOG_HISTORICAL => __('Historical'),
                    self::DOLOG_LOGS       => _n('Log', 'Logs',
@@ -259,25 +292,18 @@ class APIClient extends CommonDBTM {
    }
 
    /**
-   * Get app token checking that it is unique
-   *
-   * @return string app token
-   **/
+    * Get app token checking that it is unique
+    *
+    * @return string app token
+    */
    static function getUniqueAppToken() {
-      global $DB;
 
       $ok = false;
       do {
-         $key    = Toolbox::getRandomString(40);
-         $query  = "SELECT COUNT(*)
-                    FROM `".self::getTable()."`
-                    WHERE `app_token` = '$key'";
-         $result = $DB->query($query);
-
-         if ($DB->result($result,0,0) == 0) {
+         $key    = Toolbox::getRandomString(40, true);
+         if (countElementsInTable(self::getTable(), ['app_token' => $key]) == 0) {
             return $key;
          }
       } while (!$ok);
-
    }
 }

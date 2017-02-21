@@ -1,33 +1,33 @@
 <?php
-/*
- -------------------------------------------------------------------------
- GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2015-2016 Teclib'.
-
- http://glpi-project.org
-
- based on GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2003-2014 by the INDEPNET Development Team.
-
- -------------------------------------------------------------------------
-
- LICENSE
-
- This file is part of GLPI.
-
- GLPI is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
-
- GLPI is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with GLPI. If not, see <http://www.gnu.org/licenses/>.
- --------------------------------------------------------------------------
+/**
+ * ---------------------------------------------------------------------
+ * GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2015-2017 Teclib' and contributors.
+ *
+ * http://glpi-project.org
+ *
+ * based on GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2003-2014 by the INDEPNET Development Team.
+ *
+ * ---------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of GLPI.
+ *
+ * GLPI is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * GLPI is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GLPI. If not, see <http://www.gnu.org/licenses/>.
+ * ---------------------------------------------------------------------
  */
 
 /** @file
@@ -93,9 +93,9 @@ class NotificationTargetChange extends NotificationTargetCommonITILObject {
       $datas['##change.backoutplancontent##'] = $item->getField("backoutplancontent");
       $datas['##change.checklistcontent##']   = $item->getField("checklistcontent");
 
-//       $datas["##problem.impacts##"]  = $item->getField('impactcontent');
-//       $datas["##problem.causes##"]   = $item->getField('causecontent');
-//       $datas["##problem.symptoms##"] = $item->getField('symptomcontent');
+      // $datas["##problem.impacts##"]  = $item->getField('impactcontent');
+      // $datas["##problem.causes##"]   = $item->getField('causecontent');
+      // $datas["##problem.symptoms##"] = $item->getField('symptomcontent');
 
       // Complex mode
       if (!$simple) {
@@ -151,7 +151,7 @@ class NotificationTargetChange extends NotificationTargetCommonITILObject {
          $datas['##change.numberofproblems##'] = count($datas['problems']);
 
          $restrict = "`changes_id` = '".$item->getField('id')."'";
-         $items    = getAllDatasFromTable('glpi_changes_items',$restrict);
+         $items    = getAllDatasFromTable('glpi_changes_items', $restrict);
 
          $datas['items'] = array();
          if (count($items)) {
@@ -216,7 +216,7 @@ class NotificationTargetChange extends NotificationTargetCommonITILObject {
 
          $restrict .= " ORDER BY `submission_date` DESC, `id` ASC";
 
-         $validations = getAllDatasFromTable('glpi_changevalidations',$restrict);
+         $validations = getAllDatasFromTable('glpi_changevalidations', $restrict);
          $datas['validations'] = array();
          foreach ($validations as $validation) {
             $tmp = array();
@@ -274,9 +274,9 @@ class NotificationTargetChange extends NotificationTargetCommonITILObject {
                     'change.rolloutplancontent' => __('Deployment plan'),
                     'change.backoutplancontent' => __('Backup plan'),
                     'change.checklistcontent'   => __('Checklist'),
-//                     'problem.impacts'           => __('Impacts'),
-//                     'problem.causes'            => __('Causes'),
-//                     'problem.symptoms'          => __('Symptoms'),
+                    // 'problem.impacts'           => __('Impacts'),
+                    // 'problem.causes'            => __('Causes'),
+                    // 'problem.symptoms'          => __('Symptoms'),
                     'item.name'                 => __('Associated item'),
                     'item.serial'               => __('Serial number'),
                     'item.otherserial'          => __('Inventory number'),
@@ -333,14 +333,12 @@ class NotificationTargetChange extends NotificationTargetCommonITILObject {
                                    'events' => array('validation', 'validation_answer')));
       }
 
-
       //Foreach global tags
       $tags = array('tickets'     => _n('Ticket', 'Tickets', Session::getPluralNumber()),
                     'problems'    => _n('Problem', 'Problems', Session::getPluralNumber()),
                     'items'       => _n('Item', 'Items', Session::getPluralNumber()),
-                    'validations' => _n('Validation','Validations', Session::getPluralNumber()),
+                    'validations' => _n('Validation', 'Validations', Session::getPluralNumber()),
                     'documents'   => _n('Document', 'Documents', Session::getPluralNumber()));
-
 
       foreach ($tags as $tag => $label) {
          $this->addTagToList(array('tag'     => $tag,

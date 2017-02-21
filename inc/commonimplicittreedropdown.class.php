@@ -1,33 +1,33 @@
 <?php
-/*
- -------------------------------------------------------------------------
- GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2015-2016 Teclib'.
-
- http://glpi-project.org
-
- based on GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2003-2014 by the INDEPNET Development Team.
-
- -------------------------------------------------------------------------
-
- LICENSE
-
- This file is part of GLPI.
-
- GLPI is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
-
- GLPI is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with GLPI. If not, see <http://www.gnu.org/licenses/>.
- --------------------------------------------------------------------------
+/**
+ * ---------------------------------------------------------------------
+ * GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2015-2017 Teclib' and contributors.
+ *
+ * http://glpi-project.org
+ *
+ * based on GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2003-2014 by the INDEPNET Development Team.
+ *
+ * ---------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of GLPI.
+ *
+ * GLPI is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * GLPI is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GLPI. If not, see <http://www.gnu.org/licenses/>.
+ * ---------------------------------------------------------------------
 */
 
 /** @file
@@ -197,7 +197,7 @@ class CommonImplicitTreeDropdown extends CommonTreeDropdown {
          if (count($oldSons) > 0) { // Then make them pointing to old parent
             $query = "UPDATE `".$this->getTable()."`
                       SET `".$this->getForeignKeyField()."` = '$oldParent'
-                      WHERE `id` IN ('".implode("', '",$oldSons)."')";
+                      WHERE `id` IN ('".implode("', '", $oldSons)."')";
             $DB->query($query);
             // Then, regenerate the old sons to reflect there new ancestors
             $this->regenerateTreeUnderID($oldParent, true, true);
@@ -219,7 +219,7 @@ class CommonImplicitTreeDropdown extends CommonTreeDropdown {
          if (count($newSons) > 0) { // Then make them pointing to me
             $query = "UPDATE `".$this->getTable()."`
                       SET `".$this->getForeignKeyField()."` = '".$this->getID()."'
-                      WHERE `id` IN ('".implode("', '",$newSons)."')";
+                      WHERE `id` IN ('".implode("', '", $newSons)."')";
             $DB->query($query);
             // Then, regenerate the new sons to reflect there new ancestors
             $this->regenerateTreeUnderID($this->getID(), true, true);

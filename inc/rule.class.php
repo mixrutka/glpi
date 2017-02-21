@@ -1,33 +1,33 @@
 <?php
-/*
- -------------------------------------------------------------------------
- GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2015-2016 Teclib'.
-
- http://glpi-project.org
-
- based on GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2003-2014 by the INDEPNET Development Team.
-
- -------------------------------------------------------------------------
-
- LICENSE
-
- This file is part of GLPI.
-
- GLPI is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
-
- GLPI is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with GLPI. If not, see <http://www.gnu.org/licenses/>.
- --------------------------------------------------------------------------
+/**
+ * ---------------------------------------------------------------------
+ * GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2015-2017 Teclib' and contributors.
+ *
+ * http://glpi-project.org
+ *
+ * based on GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2003-2014 by the INDEPNET Development Team.
+ *
+ * ---------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of GLPI.
+ *
+ * GLPI is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * GLPI is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GLPI. If not, see <http://www.gnu.org/licenses/>.
+ * ---------------------------------------------------------------------
  */
 
 /** @file
@@ -245,7 +245,6 @@ class Rule extends CommonDBTM {
          }
       }
 
-
       if (Session::haveRight("rule_dictionnary_dropdown", READ)
           || Session::haveRight("rule_dictionnary_software", READ)
           || Session::haveRight("rule_dictionnary_printer", READ)) {
@@ -266,7 +265,6 @@ class Rule extends CommonDBTM {
                               = '/front/ruledictionnarymanufacturer.form.php';
          }
 
-
          $menu['dictionnary']['options']['software']['title']
                            = _n('Software', 'Software', Session::getPluralNumber());
          $menu['dictionnary']['options']['software']['page']
@@ -278,7 +276,6 @@ class Rule extends CommonDBTM {
             $menu['dictionnary']['options']['software']['links']['add']
                               = '/front/ruledictionnarysoftware.form.php';
          }
-
 
          $menu['dictionnary']['options']['model.computer']['title']
                            = _n('Computer model', 'Computer models', Session::getPluralNumber());
@@ -292,7 +289,6 @@ class Rule extends CommonDBTM {
                               = '/front/ruledictionnarycomputermodel.form.php';
          }
 
-
          $menu['dictionnary']['options']['model.monitor']['title']
                            = _n('Monitor model', 'Monitor models', Session::getPluralNumber());
          $menu['dictionnary']['options']['model.monitor']['page']
@@ -304,7 +300,6 @@ class Rule extends CommonDBTM {
             $menu['dictionnary']['options']['model.monitor']['links']['add']
                               = '/front/ruledictionnarymonitormodel.form.php';
          }
-
 
          $menu['dictionnary']['options']['model.printer']['title']
                            = _n('Printer model', 'Printer models', Session::getPluralNumber());
@@ -318,7 +313,6 @@ class Rule extends CommonDBTM {
                               = '/front/ruledictionnaryprintermodel.form.php';
          }
 
-
          $menu['dictionnary']['options']['model.peripheral']['title']
                            = _n('Peripheral model', 'Peripheral models', Session::getPluralNumber());
          $menu['dictionnary']['options']['model.peripheral']['page']
@@ -330,7 +324,6 @@ class Rule extends CommonDBTM {
             $menu['dictionnary']['options']['model.peripheral']['links']['add']
                               = '/front/ruledictionnaryperipheralmodel.form.php';
          }
-
 
          $menu['dictionnary']['options']['model.networking']['title']
                            = _n('Networking equipment model', 'Networking equipment models', Session::getPluralNumber());
@@ -344,7 +337,6 @@ class Rule extends CommonDBTM {
                               = '/front/ruledictionnarynetworkequipmentmodel.form.php';
          }
 
-
          $menu['dictionnary']['options']['model.phone']['title']
                            = _n('Phone model', 'Phone models', Session::getPluralNumber());
          $menu['dictionnary']['options']['model.phone']['page']
@@ -356,7 +348,6 @@ class Rule extends CommonDBTM {
             $menu['dictionnary']['options']['model.phone']['links']['add']
                               = '/front/ruledictionnaryphonemodel.form.php';
          }
-
 
          $menu['dictionnary']['options']['type.computer']['title']
                            = _n('Computer type', 'Computer types', Session::getPluralNumber());
@@ -370,7 +361,6 @@ class Rule extends CommonDBTM {
                               = '/front/ruledictionnarycomputertype.form.php';
          }
 
-
          $menu['dictionnary']['options']['type.monitor']['title']
                            = _n('Monitor type', 'Monitors types', Session::getPluralNumber());
          $menu['dictionnary']['options']['type.monitor']['page']
@@ -382,7 +372,6 @@ class Rule extends CommonDBTM {
             $menu['dictionnary']['options']['type.monitor']['links']['add']
                               = '/front/ruledictionnarymonitortype.form.php';
          }
-
 
          $menu['dictionnary']['options']['type.printer']['title']
                            = _n('Printer type', 'Printer types', Session::getPluralNumber());
@@ -396,7 +385,6 @@ class Rule extends CommonDBTM {
                               = '/front/ruledictionnaryprintertype.form.php';
          }
 
-
          $menu['dictionnary']['options']['type.peripheral']['title']
                            = _n('Peripheral type', 'Peripheral types', Session::getPluralNumber());
          $menu['dictionnary']['options']['type.peripheral']['page']
@@ -408,7 +396,6 @@ class Rule extends CommonDBTM {
             $menu['dictionnary']['options']['type.peripheral']['links']['add']
                               = '/front/ruledictionnaryperipheraltype.form.php';
          }
-
 
          $menu['dictionnary']['options']['type.networking']['title']
                            = _n('Networking equipment type', 'Networking equipment types', Session::getPluralNumber());
@@ -422,7 +409,6 @@ class Rule extends CommonDBTM {
                               = '/front/ruledictionnarynetworkequipmenttype.form.php';
          }
 
-
          $menu['dictionnary']['options']['type.phone']['title']
                            = _n('Phone type', 'Phone types', Session::getPluralNumber());
          $menu['dictionnary']['options']['type.phone']['page']
@@ -434,7 +420,6 @@ class Rule extends CommonDBTM {
             $menu['dictionnary']['options']['type.phone']['links']['add']
                               = '/front/ruledictionnaryphonetype.form.php';
          }
-
 
          $menu['dictionnary']['options']['os']['title']
                            = __('Operating system');
@@ -448,7 +433,6 @@ class Rule extends CommonDBTM {
                               = '/front/ruledictionnaryoperatingsystem.form.php';
          }
 
-
          $menu['dictionnary']['options']['os_sp']['title']
                            = __('Service pack');
          $menu['dictionnary']['options']['os_sp']['page']
@@ -460,7 +444,6 @@ class Rule extends CommonDBTM {
             $menu['dictionnary']['options']['os_sp']['links']['add']
                               = '/front/ruledictionnaryoperatingsystemservicepack.form.php';
          }
-
 
          $menu['dictionnary']['options']['os_version']['title']
                            = __('Version of the operating system');
@@ -675,7 +658,6 @@ class Rule extends CommonDBTM {
             }
          break;
 
-
          case 'move_rule' :
             $input          = $ma->getInput();
             $collectionname = $input['rule_class_name'].'Collection';
@@ -704,66 +686,95 @@ class Rule extends CommonDBTM {
    }
 
 
-   function getSearchOptions() {
+   function getSearchOptionsNew() {
+      $tab = [];
 
-      $tab                       = array();
+      $tab[] = [
+         'id'                 => '1',
+         'table'              => $this->getTable(),
+         'field'              => 'name',
+         'name'               => __('Name'),
+         'datatype'           => 'itemlink',
+         'massiveaction'      => false
+      ];
 
-      $tab[1]['table']           = $this->getTable();
-      $tab[1]['field']           = 'name';
-      $tab[1]['name']            = __('Name');
-      $tab[1]['datatype']        = 'itemlink';
-      $tab[1]['massiveaction']   = false;
+      $tab[] = [
+         'id'                 => '3',
+         'table'              => $this->getTable(),
+         'field'              => 'ranking',
+         'name'               => __('Position'),
+         'datatype'           => 'number',
+         'massiveaction'      => false
+      ];
 
-      $tab[3]['table']           = $this->getTable();
-      $tab[3]['field']           = 'ranking';
-      $tab[3]['name']            = __('Position');
-      $tab[3]['datatype']        = 'number';
-      $tab[3]['massiveaction']   = false;
+      $tab[] = [
+         'id'                 => '4',
+         'table'              => $this->getTable(),
+         'field'              => 'description',
+         'name'               => __('Description'),
+         'datatype'           => 'text'
+      ];
 
-      $tab[4]['table']           = $this->getTable();
-      $tab[4]['field']           = 'description';
-      $tab[4]['name']            = __('Description');
-      $tab[4]['datatype']        = 'text';
+      $tab[] = [
+         'id'                 => '5',
+         'table'              => $this->getTable(),
+         'field'              => 'match',
+         'name'               => __('Logical operator'),
+         'datatype'           => 'specific',
+         'massiveaction'      => false
+      ];
 
-      $tab[5]['table']           = $this->getTable();
-      $tab[5]['field']           = 'match';
-      $tab[5]['name']            = __('Logical operator');
-      $tab[5]['datatype']        = 'specific';
-      $tab[5]['massiveaction']   = false;
+      $tab[] = [
+         'id'                 => '8',
+         'table'              => $this->getTable(),
+         'field'              => 'is_active',
+         'name'               => __('Active'),
+         'datatype'           => 'bool'
+      ];
 
-      $tab[8]['table']           = $this->getTable();
-      $tab[8]['field']           = 'is_active';
-      $tab[8]['name']            = __('Active');
-      $tab[8]['datatype']        = 'bool';
+      $tab[] = [
+         'id'                 => '16',
+         'table'              => $this->getTable(),
+         'field'              => 'comment',
+         'name'               => __('Comments'),
+         'datatype'           => 'text'
+      ];
 
-      $tab[16]['table']          = $this->getTable();
-      $tab[16]['field']          = 'comment';
-      $tab[16]['name']           = __('Comments');
-      $tab[16]['datatype']       = 'text';
+      $tab[] = [
+         'id'                 => '80',
+         'table'              => 'glpi_entities',
+         'field'              => 'completename',
+         'name'               => __('Entity'),
+         'massiveaction'      => false,
+         'datatype'           => 'dropdown'
+      ];
 
-      $tab[80]['table']          = 'glpi_entities';
-      $tab[80]['field']          = 'completename';
-      $tab[80]['name']           = __('Entity');
-      $tab[80]['massiveaction']  = false;
-      $tab[80]['datatype']       = 'dropdown';
+      $tab[] = [
+         'id'                 => '86',
+         'table'              => $this->getTable(),
+         'field'              => 'is_recursive',
+         'name'               => __('Child entities'),
+         'datatype'           => 'bool',
+         'massiveaction'      => false
+      ];
 
-      $tab[86]['table']          = $this->getTable();
-      $tab[86]['field']          = 'is_recursive';
-      $tab[86]['name']           = __('Child entities');
-      $tab[86]['datatype']       = 'bool';
-      $tab[86]['massiveaction']  = false;
+      $tab[] = [
+         'id'                 => '19',
+         'table'              => $this->getTable(),
+         'field'              => 'date_mod',
+         'name'               => __('Last update'),
+         'datatype'           => 'datetime',
+         'massiveaction'      => false
+      ];
 
-      $tab[19]['table']          = $this->getTable();
-      $tab[19]['field']          = 'date_mod';
-      $tab[19]['name']           = __('Last update');
-      $tab[19]['datatype']       = 'datetime';
-      $tab[19]['massiveaction']  = false;
-
-      $tab[121]['table']          = $this->getTable();
-      $tab[121]['field']          = 'date_creation';
-      $tab[121]['name']           = __('Creation date');
-      $tab[121]['datatype']       = 'datetime';
-      $tab[121]['massiveaction']  = false;
+      $tab[] = [
+         'id'                 => '121',
+         'table'              => $this->getTable(),
+         'field'              => 'date_creation',
+         'name'               => __('Creation date'),
+         'datatype'           => 'datetime',
+         'massiveaction'      => false
+      ];
 
       return $tab;
    }
@@ -904,7 +915,7 @@ class Rule extends CommonDBTM {
             }
             echo "<tr><td class='tab_bg_2 center' colspan='4'>";
             echo "<a class='vsubmit' href='#' onClick=\"".
-                  Html::jsGetElementbyID('ruletest'.$rand).".dialog('open');\">".
+                  Html::jsGetElementbyID('ruletest'.$rand).".dialog('open'); return false;\">".
                   _x('button', 'Test')."</a>";
             Ajax::createIframeModalWindow('ruletest'.$rand,
                                           $url."/front/rule.test.php?". "sub_type=".$this->getType().
@@ -1041,7 +1052,6 @@ class Rule extends CommonDBTM {
       }
       $this->getTitleAction();
 
-
       if ($canedit) {
          echo "<div id='viewaction" . $rules_id . "$rand'></div>\n";
       }
@@ -1081,7 +1091,7 @@ class Rule extends CommonDBTM {
 
       echo "<table $style>";
       echo "<tr class='noHover'>";
-      echo "<th colspan='".($canedit && $nb?'4':'3')."'>" . _n('Action','Actions', Session::getPluralNumber()) . "</th></tr>";
+      echo "<th colspan='".($canedit && $nb?'4':'3')."'>" . _n('Action', 'Actions', Session::getPluralNumber()) . "</th></tr>";
 
       $header_begin  = "<tr>";
       $header_top    = '';
@@ -1535,7 +1545,7 @@ class Rule extends CommonDBTM {
                if (!$doactions) {
                   break;
                }
-             }
+            }
          }
 
       } else { // OR MATCHING
@@ -1545,7 +1555,7 @@ class Rule extends CommonDBTM {
 
             if (!isset($definition_criteria['is_global'])
                 || !$definition_criteria['is_global']) {
-               $doactions |= $this->checkCriteria($criteria,$input);
+               $doactions |= $this->checkCriteria($criteria, $input);
                if ($doactions) {
                   break;
                }
@@ -1574,7 +1584,7 @@ class Rule extends CommonDBTM {
       reset($this->criterias);
 
       foreach ($this->criterias as $criteria) {
-         $result = $this->checkCriteria($criteria,$input);
+         $result = $this->checkCriteria($criteria, $input);
          $check_results[$criteria->fields["id"]]["name"]   = $criteria->fields["criteria"];
          $check_results[$criteria->fields["id"]]["value"]  = $criteria->fields["pattern"];
          $check_results[$criteria->fields["id"]]["result"] = ((!$result)?0:1);
@@ -1625,8 +1635,8 @@ class Rule extends CommonDBTM {
                }
             }
 
-         // Positive condition : Need to match one
          } else {
+            // Positive condition : Need to match one
             $res = false;
             foreach ($input[$criteria->fields["criteria"]] as $crit) {
                $value = $this->getCriteriaValue($criteria->fields["criteria"],
@@ -1649,13 +1659,12 @@ class Rule extends CommonDBTM {
             foreach ($partial_regex_result as $new) {
 
                foreach ($this->regex_results as $old) {
-                  $temp_result[] = array_merge($old,$new);
+                  $temp_result[] = array_merge($old, $new);
                }
             }
             $this->regex_results = $temp_result;
          }
       }
-
 
       return $res;
    }
@@ -2316,7 +2325,7 @@ class Rule extends CommonDBTM {
       }
       //Not a standard condition
       if (!$tested) {
-        $display = $this->displayAdditionalRuleCondition($condition, $crit, $name, $value, $test);
+         $display = $this->displayAdditionalRuleCondition($condition, $crit, $name, $value, $test);
       }
 
       if (($condition == self::PATTERN_EXISTS)
@@ -2367,7 +2376,7 @@ class Rule extends CommonDBTM {
                return Dropdown::getDropdownName('glpi_groups', $value);
 
             case "dropdown_validation_percent" :
-               return Dropdown::getValueWithUnit($value,'%');
+               return Dropdown::getValueWithUnit($value, '%');
 
             case "yesonly" :
             case "yesno" :
@@ -2490,7 +2499,7 @@ class Rule extends CommonDBTM {
 
             //Look for the criteria in the field of already displayed criteria :
             //if present, don't display it again
-            if (!in_array($criteria->fields["criteria"],$already_displayed)) {
+            if (!in_array($criteria->fields["criteria"], $already_displayed)) {
                $already_displayed[] = $criteria->fields["criteria"];
                echo "<tr class='tab_bg_1'>";
                echo "<td>";
@@ -2520,7 +2529,7 @@ class Rule extends CommonDBTM {
          $this->showSpecificCriteriasForPreview($_POST);
 
          echo "<tr><td class='tab_bg_2 center' colspan='3'>";
-         echo "<input type='submit' name='test_rule' value=\""._sx('button','Test')."\"
+         echo "<input type='submit' name='test_rule' value=\""._sx('button', 'Test')."\"
                 class='submit'>";
          echo "<input type='hidden' name='".$this->rules_id_field."' value='$rules_id'>";
          echo "<input type='hidden' name='sub_type' value='" . $this->getType() . "'>";
@@ -2588,7 +2597,7 @@ class Rule extends CommonDBTM {
       }
 
       $p['condition'] = "`sub_type` = '".$p['sub_type']."' $add_condition";
-      return Dropdown::show($p['sub_type'],$p);
+      return Dropdown::show($p['sub_type'], $p);
    }
 
 
@@ -2726,7 +2735,7 @@ class Rule extends CommonDBTM {
       echo "<input type=hidden name='entities_id' value='-1'>";
       echo "<input type=hidden name='affectentity' value='$ID'>";
       echo "<input type=hidden name='_method' value='AddRule'>";
-      echo "<input type='submit' name='execute' value=\""._sx('button','Add')."\" class='submit'>";
+      echo "<input type='submit' name='execute' value=\""._sx('button', 'Add')."\" class='submit'>";
       echo "</td></tr>\n";
       echo "</table>";
       Html::closeForm();
@@ -2986,7 +2995,7 @@ class Rule extends CommonDBTM {
                      $nb = countElementsInTable(array('glpi_rules', 'glpi_ruleactions'),
                                                 "`glpi_ruleactions`.`rules_id` = `glpi_rules`.`id`
                                                   AND `glpi_rules`.`sub_type`
-                                                         IN ('".implode("','",$types)."')
+                                                         IN ('".implode("','", $types)."')
                                                   AND `glpi_ruleactions`.`field` = 'entities_id'
                                                   AND `glpi_ruleactions`.`value`
                                                             = '".$item->getID()."'");
@@ -2997,8 +3006,8 @@ class Rule extends CommonDBTM {
             case 'SLA' :
                if ($_SESSION['glpishow_count_on_tabs']) {
                   $nb = countElementsInTable('glpi_ruleactions',
-                                             "`field` = 'slas_id'
-                                                AND `value` = '".$item->getID()."'");
+                                            ['field' => 'slas_id',
+                                             'value' => $item->getID()]);
                }
                return self::createTabEntry(self::getTypeName(Session::getPluralNumber()), $nb);
 
@@ -3009,9 +3018,9 @@ class Rule extends CommonDBTM {
                   $nbaction   = 0;
                   if ($_SESSION['glpishow_count_on_tabs']) {
                      $nbcriteria = countElementsInTable(getTableForItemType($item->getRuleCriteriaClass()),
-                                                        "`".$item->getRuleIdField()."` = '".$item->getID()."'");
+                                                        [$item->getRuleIdField() => $item->getID()]);
                      $nbaction   = countElementsInTable(getTableForItemType($item->getRuleActionClass()),
-                                                        "`".$item->getRuleIdField()."` = '".$item->getID()."'");
+                                                        [$item->getRuleIdField() => $item->getID()]);
 
                   }
 

@@ -1,34 +1,33 @@
 <?php
-/*
- * @version $Id$
- -------------------------------------------------------------------------
- GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2015 Teclib'.
-
- http://glpi-project.org
-
- based on GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2003-2014 by the INDEPNET Development Team.
-
- -------------------------------------------------------------------------
-
- LICENSE
-
- This file is part of GLPI.
-
- GLPI is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
-
- GLPI is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with GLPI. If not, see <http://www.gnu.org/licenses/>.
- --------------------------------------------------------------------------
+/**
+ * ---------------------------------------------------------------------
+ * GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2015-2017 Teclib' and contributors.
+ *
+ * http://glpi-project.org
+ *
+ * based on GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2003-2014 by the INDEPNET Development Team.
+ *
+ * ---------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of GLPI.
+ *
+ * GLPI is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * GLPI is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GLPI. If not, see <http://www.gnu.org/licenses/>.
+ * ---------------------------------------------------------------------
  */
 
 /** @file
@@ -37,7 +36,7 @@
 */
 
 // Direct access to file
-if (strpos($_SERVER['PHP_SELF'],"getDropdownValue.php")) {
+if (strpos($_SERVER['PHP_SELF'], "getDropdownValue.php")) {
    include ('../inc/includes.php');
    header("Content-Type: text/html; charset=UTF-8");
    Html::header_nocache();
@@ -51,7 +50,7 @@ if (isset($_POST["entity_restrict"])
     && !is_array($_POST["entity_restrict"])
     && (substr($_POST["entity_restrict"], 0, 1) === '[')
     && (substr($_POST["entity_restrict"], -1) === ']')) {
-   $_POST["entity_restrict"] = json_decode($_POST["entity_restrict"]);
+    $_POST["entity_restrict"] = Toolbox::jsonDecode($_POST["entity_restrict"]);
 }
 
 // Security
@@ -73,11 +72,11 @@ if (!isset($_POST['permit_select_parent'])) {
 }
 
 if (isset($_POST['condition']) && !empty($_POST['condition'])) {
-    if (isset($_SESSION['glpicondition'][$_POST['condition']])) {
-        $_POST['condition'] = $_SESSION['glpicondition'][$_POST['condition']];
-    } else {
-        $_POST['condition'] = '';
-    }
+   if (isset($_SESSION['glpicondition'][$_POST['condition']])) {
+      $_POST['condition'] = $_SESSION['glpicondition'][$_POST['condition']];
+   } else {
+      $_POST['condition'] = '';
+   }
 }
 
 if (!isset($_POST['emptylabel']) || ($_POST['emptylabel'] == '')) {
@@ -111,7 +110,7 @@ if (isset($_POST['used'])) {
    $used = $_POST['used'];
 
    if (count($used)) {
-      $where .=" AND `$table`.`id` NOT IN ('".implode("','",$used)."' ) ";
+      $where .=" AND `$table`.`id` NOT IN ('".implode("','", $used)."' ) ";
    }
 }
 
@@ -145,7 +144,7 @@ if ($item instanceof CommonTreeDropdown) {
          $search = Search::makeTextSearch($_POST['searchText']);
          if (Session::haveTranslations($_POST['itemtype'], 'completename')) {
             $where .= " AND (`$table`.`completename` $search ".
-                             "OR `namet`.`value` $search " ;
+                             "OR `namet`.`value` $search ";
          } else {
             $where .= " AND (`$table`.`completename` $search ";
          }
@@ -343,7 +342,7 @@ if ($item instanceof CommonTreeDropdown) {
                                                                                  'name',
                                                                                  $_SESSION['glpilanguage'],
                                                                                  $item->fields['name']);
-                           //   $output2 = $item->getName();
+                              //   $output2 = $item->getName();
 
                               $temp = array('id'       => $ID,
                                             'text'     => $output2,
@@ -366,7 +365,7 @@ if ($item instanceof CommonTreeDropdown) {
                               && (!isset($last_level_displayed[$work_level])
                                   || ($last_level_displayed[$work_level] != $work_parentID)));
                      // Add parents
-                     foreach($parent_datas as $val){
+                     foreach ($parent_datas as $val) {
                         array_push($datastoadd, $val);
                      }
                   }
@@ -525,6 +524,10 @@ if ($item instanceof CommonTreeDropdown) {
                    $where";
          break;
 
+      case KnowbaseItem::getType():
+         $addjoin   .= KnowbaseItem::addVisibilityJoins();
+         //no break to reach default case.
+
       default :
          $query = "SELECT `$table`.* $addselect
                    FROM `$table`
@@ -562,7 +565,7 @@ if ($item instanceof CommonTreeDropdown) {
          }
       }
 
-//       $outputval = Dropdown::getDropdownName($table, $_POST['value']);
+      //       $outputval = Dropdown::getDropdownName($table, $_POST['value']);
 
       $datastoadd = array();
 
@@ -589,7 +592,7 @@ if ($item instanceof CommonTreeDropdown) {
             } else if ($field == 'itemtype' && class_exists($data['itemtype'])) {
                $tmpitem = new $data[$field]();
                if ($tmpitem->getFromDB($data['items_id'])) {
-                  $outputval = sprintf(__('%1$s - %2$s'), $tmpitem->getTypeName(),$tmpitem->getName());
+                  $outputval = sprintf(__('%1$s - %2$s'), $tmpitem->getTypeName(), $tmpitem->getName());
                } else {
                   $outputval = $tmpitem->getTypeName();
                }
@@ -658,4 +661,3 @@ if (($one_item >= 0) && isset($datas[0])) {
    echo json_encode($ret);
 }
 
-?>

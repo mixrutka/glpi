@@ -1,39 +1,37 @@
 <?php
-
-/*
- * @version $Id$
- -------------------------------------------------------------------------
- GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2015 Teclib'.
-
- http://glpi-project.org
-
- based on GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2003-2014 by the INDEPNET Development Team.
-
- -------------------------------------------------------------------------
-
- LICENSE
-
- This file is part of GLPI.
-
- GLPI is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
-
- GLPI is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with GLPI. If not, see <http://www.gnu.org/licenses/>.
- --------------------------------------------------------------------------
+/**
+ * ---------------------------------------------------------------------
+ * GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2015-2017 Teclib' and contributors.
+ *
+ * http://glpi-project.org
+ *
+ * based on GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2003-2014 by the INDEPNET Development Team.
+ *
+ * ---------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of GLPI.
+ *
+ * GLPI is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * GLPI is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GLPI. If not, see <http://www.gnu.org/licenses/>.
+ * ---------------------------------------------------------------------
  */
 
 /** @file
-* @brief
+* @since version 9.1
 */
 
 if (!defined('GLPI_ROOT')) {
@@ -46,6 +44,8 @@ class ComputerAntivirus extends CommonDBChild {
    static public $itemtype = 'Computer';
    static public $items_id = 'computers_id';
    public $dohistory       = true;
+
+
 
    static function getTypeName($nb=0) {
       return _n('Antivirus', 'Antiviruses', $nb);
@@ -63,7 +63,7 @@ class ComputerAntivirus extends CommonDBChild {
          $nb = 0;
          if ($_SESSION['glpishow_count_on_tabs']) {
             $nb = countElementsInTable('glpi_computerantiviruses',
-                                       "computers_id = '".$item->getID()."' AND `is_deleted`='0'");
+                                      ["computers_id" => $item->getID(), 'is_deleted' => 0 ]);
          }
          return self::createTabEntry(self::getTypeName(Session::getPluralNumber()), $nb);
       }
@@ -75,7 +75,7 @@ class ComputerAntivirus extends CommonDBChild {
     * @param $item            CommonGLPI object
     * @param $tabnum          (default 1)
     * @param $withtemplate    (default 0)
-    */
+   **/
    static function displayTabContentForItem(CommonGLPI $item, $tabnum=1, $withtemplate=0) {
 
       self::showForComputer($item, $withtemplate);
@@ -85,8 +85,6 @@ class ComputerAntivirus extends CommonDBChild {
 
    /**
     * @see CommonGLPI::defineTabs()
-    *
-    * @since version 0.85
    **/
    function defineTabs($options=array()) {
 
@@ -101,18 +99,13 @@ class ComputerAntivirus extends CommonDBChild {
    /**
     * Duplicate all antirivuses from a computer template to his clone
     *
-    * @since version 0.84
-    *
     * @param $oldid
     * @param $newid
    **/
    static function cloneComputer ($oldid, $newid) {
       global $DB;
 
-      $query  = "SELECT *
-                 FROM `glpi_computerantiviruses`
-                 WHERE `computers_id` = '$oldid'";
-      foreach ($DB->request($query) as $data) {
+      foreach ($DB->request('glpi_computerantiviruses', array('computers_id' => $oldid)) as $data) {
          $antirivus            = new self();
          unset($data['id']);
          $data['computers_id'] = $newid;
@@ -122,141 +115,115 @@ class ComputerAntivirus extends CommonDBChild {
    }
 
 
-   function getSearchOptions() {
+   /**
+    * Get the Search options to add to an item for the given Type
+    *
+    * @return a *not indexed* array of search options
+    * More information on https://forge.indepnet.net/wiki/glpi/SearchEngine
+    * @since 9.2
+   **/
+   static public function getSearchOptionsToAddNew() {
+      $tab = [];
 
-      $tab = array();
-      $tab['common'] = __('Characteristics');
+      $tab[] = [
+         'id'                 => 'antivirus',
+         'name'               => _n('Antivirus', 'Antiviruses', Session::getPluralNumber())
+      ];
 
+      $tab[] = [
+         'id'                 => '167',
+         'table'              => 'glpi_computerantiviruses',
+         'field'              => 'name',
+         'name'               => __('Antivirus'),
+         'forcegroupby'       => true,
+         'massiveaction'      => false,
+         'datatype'           => 'dropdown',
+         'joinparams'         => [
+            'jointype'           => 'child'
+         ]
+      ];
 
-      $tab[1]['table']           = $this->getTable();
-      $tab[1]['field']           = 'name';
-      $tab[1]['name']            = __('Name');
-      $tab[1]['datatype']        = 'itemlink';
-      $tab[1]['massiveaction']   = false; // implicit key==1
+      $tab[] = [
+         'id'                 => '168',
+         'table'              => 'glpi_computerantiviruses',
+         'field'              => 'antivirus_version',
+         'name'               => __('Antivirus version'),
+         'forcegroupby'       => true,
+         'massiveaction'      => false,
+         'datatype'           => 'text',
+         'joinparams'         => [
+            'jointype'           => 'child'
+         ]
+      ];
 
-      $tab[2]['table']           = $this->getTable();
-      $tab[2]['field']           = 'id';
-      $tab[2]['name']            = __('ID');
-      $tab[2]['massiveaction']   = false; // implicit field is id
-      $tab[2]['datatype']        = 'number';
-      $tab[2]['massiveaction']   = false; // implicit key==1
+      $tab[] = [
+         'id'                 => '169',
+         'table'              => 'glpi_computerantiviruses',
+         'field'              => 'is_active',
+         'linkfield'          => '',
+         'name'               => __('Active'),
+         'datatype'           => 'bool',
+         'joinparams'         => [
+            'jointype'           => 'child'
+         ],
+         'massiveaction'      => false,
+         'forcegroupby'       => true,
+         'searchtype'         => ['equals']
+      ];
 
-      $tab[3]['table']         = $this->getTable();
-      $tab[3]['field']         = 'antivirus_version';
-      $tab[3]['name']          = __('Antivirus version');
-      $tab[3]['type']          = 'text';
-      $tab[3]['massiveaction']   = false; // implicit key==1
+      $tab[] = [
+         'id'                 => '170',
+         'table'              => 'glpi_computerantiviruses',
+         'field'              => 'is_uptodate',
+         'linkfield'          => '',
+         'name'               => __('Is up to date'),
+         'datatype'           => 'bool',
+         'joinparams'         => [
+            'jointype'           => 'child'
+         ],
+         'massiveaction'      => false,
+         'forcegroupby'       => true,
+         'searchtype'         => ['equals']
+      ];
 
-      $tab[4]['table']         = $this->getTable();
-      $tab[4]['field']         = 'is_active';
-      $tab[4]['name']          = __('Active');
-      $tab[4]['type']          = 'bool';
-      $tab[4]['massiveaction']   = false; // implicit key==1
+      $tab[] = [
+         'id'                 => '171',
+         'table'              => 'glpi_computerantiviruses',
+         'field'              => 'signature_version',
+         'name'               => __('Signature database version'),
+         'forcegroupby'       => true,
+         'massiveaction'      => false,
+         'datatype'           => 'text',
+         'joinparams'         => [
+            'jointype'           => 'child'
+         ]
+      ];
 
-      $tab[5]['table']         = $this->getTable();
-      $tab[5]['field']         = 'is_uptodate';
-      $tab[5]['name']          = __('Up to date');
-      $tab[5]['type']          = 'bool';
-      $tab[5]['massiveaction']   = false; // implicit key==1
-
-      $tab[6]['table']         = $this->getTable();
-      $tab[6]['field']         = 'signature_version';
-      $tab[6]['name']          = __('Signature database version');
-      $tab[6]['type']          = 'text';
-      $tab[6]['massiveaction']   = false; // implicit key==1
-
-      $tab[19]['table']          = $this->getTable();
-      $tab[19]['field']          = 'date_mod';
-      $tab[19]['name']           = __('Last update');
-      $tab[19]['datatype']       = 'datetime';
-      $tab[19]['massiveaction']  = false;
-
-      $tab[7]['table']          = $this->getTable();
-      $tab[7]['field']          = 'date_creation';
-      $tab[7]['name']           = __('Creation date');
-      $tab[7]['datatype']       = 'datetime';
-      $tab[7]['massiveaction']  = false;
-
-      $tab[7]['table']          = $this->getTable();
-      $tab[7]['field']          = 'date_expiration';
-      $tab[7]['name']           = __('Expiration date');
-      $tab[7]['datatype']       = 'datetime';
-      $tab[7]['massiveaction']  = false;
-
-      return $tab;
-   }
-
-   static function getSearchOptionsToAdd() {
-      $tab = array();
-
-      $tab['antivirus']          = _n('Antivirus', 'Antiviruses', Session::getPluralNumber());
-
-      $tab[167]['table']         = 'glpi_computerantiviruses';
-      $tab[167]['field']         = 'name';
-      $tab[167]['name']          = __('Antivirus');
-      $tab[167]['forcegroupby']  = true;
-      $tab[167]['massiveaction'] = false;
-      $tab[167]['datatype']      = 'dropdown';
-      $tab[167]['joinparams']    = array('jointype' => 'child');
-
-      $tab[168]['table']         = 'glpi_computerantiviruses';
-      $tab[168]['field']         = 'antivirus_version';
-      $tab[168]['name']          = __('Antivirus version');
-      $tab[168]['forcegroupby']  = true;
-      $tab[168]['massiveaction'] = false;
-      $tab[168]['datatype']      = 'text';
-      $tab[168]['joinparams']    = array('jointype' => 'child');
-
-      $tab[169]['table']         = 'glpi_computerantiviruses';
-      $tab[169]['field']         = 'is_active';
-      $tab[169]['linkfield']     = '';
-      $tab[169]['name']          = __('Active');
-      $tab[169]['datatype']      = 'bool';
-      $tab[169]['joinparams']    = array('jointype' => 'child');
-      $tab[169]['massiveaction'] = FALSE;
-      $tab[169]['forcegroupby']  = TRUE;
-      $tab[169]['searchtype']    = array('equals');
-
-      $tab[170]['table']         = 'glpi_computerantiviruses';
-      $tab[170]['field']         = 'is_uptodate';
-      $tab[170]['linkfield']     = '';
-      $tab[170]['name']          = __('Is up to date');
-      $tab[170]['datatype']      = 'bool';
-      $tab[170]['joinparams']    = array('jointype' => 'child');
-      $tab[170]['massiveaction'] = FALSE;
-      $tab[170]['forcegroupby']  = TRUE;
-      $tab[170]['searchtype']    = array('equals');
-
-      $tab[171]['table']         = 'glpi_computerantiviruses';
-      $tab[171]['field']         = 'signature_version';
-      $tab[171]['name']          = __('Signature database version');
-      $tab[171]['forcegroupby']  = true;
-      $tab[171]['massiveaction'] = false;
-      $tab[171]['datatype']      = 'text';
-      $tab[171]['joinparams']    = array('jointype' => 'child');
-
-      $tab[172]['table']         = 'glpi_computerantiviruses';
-      $tab[172]['field']         = 'date_expiration';
-      $tab[172]['name']          = __('Expiration date');
-      $tab[172]['forcegroupby']  = true;
-      $tab[172]['massiveaction'] = false;
-      $tab[172]['datatype']      = 'date';
-      $tab[172]['joinparams']    = array('jointype' => 'child');
+      $tab[] = [
+         'id'                 => '172',
+         'table'              => 'glpi_computerantiviruses',
+         'field'              => 'date_expiration',
+         'name'               => __('Expiration date'),
+         'forcegroupby'       => true,
+         'massiveaction'      => false,
+         'datatype'           => 'date',
+         'joinparams'         => [
+            'jointype'           => 'child'
+         ]
+      ];
 
       return $tab;
    }
 
    /**
-   * Display form for antivirus
-   *
-   * @param $items_id integer ID of the antivirus
-   * @param $options array
-   *
-   * @return bool TRUE if form is ok
-   *
+    * Display form for antivirus
+    *
+    * @param $ID                id of the antivirus
+    * @param $options array
+    *
+    * @return bool TRUE if form is ok
    **/
    function showForm($ID, $options=array()) {
-
       global $CFG_GLPI;
 
       if (!Session::haveRight("computer", UPDATE)) {
@@ -295,59 +262,42 @@ class ComputerAntivirus extends CommonDBChild {
       }
       echo "</tr>\n";
 
-      echo "<table class='tab_cadre_fixe' cellpadding='1'>";
-
       echo "<tr class='tab_bg_1'>";
       echo "<td>".__('Name')."</td>";
       echo "<td>";
       Html::autocompletionTextField($this, "name");
-      echo "</td><td>";
-      echo __('Active')."&nbsp;:";
       echo "</td>";
+      echo "<td>".__('Active')."</td>";
       echo "<td>";
       Dropdown::showYesNo('is_active', $this->fields['is_active']);
-      echo "</td>";
-      echo "</tr>";
+      echo "</td></tr>";
 
       echo "<tr class='tab_bg_1'>";
-      echo "<td>";
-      echo __('Manufacturer')."&nbsp;:";
-      echo "</td>";
+      echo "<td>".__('Manufacturer')."</td>";
       echo "<td>";
       Dropdown::show('Manufacturer', array('value' => $this->fields["manufacturers_id"]));
       echo "</td>";
-      echo "<td>";
-      echo __('Up to date')."&nbsp;:";
-      echo "</td>";
+      echo "<td>".__('Up to date')."</td>";
       echo "<td>";
       Dropdown::showYesNo('is_uptodate', $this->fields['is_uptodate']);
-      echo "</td>";
-      echo "</tr>";
+      echo "</td></tr>";
 
       echo "<tr class='tab_bg_1'>";
-      echo "<td>";
-      echo __('Antivirus version')."&nbsp;:";
-      echo "</td>";
+      echo "<td>". __('Antivirus version')."</td>";
       echo "<td>";
       Html::autocompletionTextField($this, "antivirus_version");
       echo "</td>";
-      echo "<td>";
-      echo __('Signature database version')."&nbsp;:";
-      echo "</td>";
+      echo "<td>".__('Signature database version')."</td>";
       echo "<td>";
       Html::autocompletionTextField($this, "signature_version");
-      echo "</td>";
-      echo "</tr>";
+      echo "</td></tr>";
 
       echo "<tr class='tab_bg_1'>";
-      echo "<td>";
-      echo __('Expiration date')."&nbsp;:";
-      echo "</td>";
+      echo "<td>".__('Expiration date')."</td>";
       echo "<td>";
       Html::showDateField("date_expiration", array('value' => $this->fields['date_expiration']));
       echo "</td>";
-      echo "<td colspan='2'>";
-      echo "</td>";
+      echo "<td colspan='2'></td>";
       echo "</tr>";
 
       $this->showFormButtons($options);
@@ -355,13 +305,14 @@ class ComputerAntivirus extends CommonDBChild {
       return true;
    }
 
+
    /**
-   * Print the computers antiviruses
-   *
-   * @param $comp                  Computer object
-   * @param $withtemplate boolean  Template or basic item (default '')
-   *
-   * @return Nothing (call to classes members)
+    * Print the computers antiviruses
+    *
+    * @param $comp                  Computer object
+    * @param $withtemplate boolean  Template or basic item (default '')
+    *
+    * @return Nothing (call to classes members)
    **/
    static function showForComputer(Computer $comp, $withtemplate='') {
       global $DB;
@@ -374,7 +325,6 @@ class ComputerAntivirus extends CommonDBChild {
       }
       $canedit = $comp->canEdit($ID);
 
-
       if ($canedit
           && !(!empty($withtemplate) && ($withtemplate == 2))) {
          echo "<div class='center firstbloc'>".
@@ -384,23 +334,19 @@ class ComputerAntivirus extends CommonDBChild {
          echo "</a></div>\n";
       }
 
-      echo "<div class='center'>";
+      echo "<div class='spaced center'>";
 
-      $query = "SELECT `glpi_computerantiviruses`.*
-                FROM `glpi_computerantiviruses`
-                WHERE `computers_id` = '$ID'
-                      AND `is_deleted` = '0'";
-
-      if ($result = $DB->query($query)) {
+      if ($result = $DB->request('glpi_computerantiviruses', array('computers_id' => $ID,
+                                                                   'is_deleted'   => 0))) {
          echo "<table class='tab_cadre_fixehov'>";
-         $colspan = 5;
+         $colspan = 7;
          if (Plugin::haveImport()) {
             $colspan++;
          }
-         echo "<tr class='noHover'><th colspan='$colspan'>".self::getTypeName($DB->numrows($result)).
+         echo "<tr class='noHover'><th colspan='$colspan'>".self::getTypeName($result->numrows()).
               "</th></tr>";
 
-         if ($DB->numrows($result)) {
+         if ($result->numrows() != 0) {
 
             $header = "<tr><th>".__('Name')."</th>";
             if (Plugin::haveImport()) {
@@ -422,18 +368,19 @@ class ComputerAntivirus extends CommonDBChild {
                                                    Computer::getTypeName(1), $comp->getName()));
 
             $antivirus = new self();
-            while ($data = $DB->fetch_assoc($result)) {
+            foreach ($result as $data) {
                $antivirus->getFromDB($data['id']);
                echo "<tr class='tab_bg_2'>";
                echo "<td>".$antivirus->getLink()."</td>";
                if (Plugin::haveImport()) {
                   echo "<td>".Dropdown::getYesNo($data['is_dynamic'])."</td>";
                }
+               echo "<td>";
                if ($data['manufacturers_id']) {
-                  echo "<td>".Dropdown::getDropdownName('glpi_manufacturers',
-                                                        $data['manufacturers_id'])."</td>";
+                  echo Dropdown::getDropdownName('glpi_manufacturers',
+                                                 $data['manufacturers_id'])."</td>";
                } else {
-                  echo "<td></td>";
+                  echo "</td>";
                }
                echo "<td>".$data['antivirus_version']."</td>";
                echo "<td>".$data['signature_version']."</td>";
@@ -450,10 +397,7 @@ class ComputerAntivirus extends CommonDBChild {
 
          echo "</table>";
       }
-      echo "</div><br>";
+      echo "</div>";
    }
 
 }
-
-
-?>

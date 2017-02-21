@@ -1,34 +1,33 @@
 <?php
-/*
- * @version $Id$
- -------------------------------------------------------------------------
- GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2015 Teclib'.
-
- http://glpi-project.org
-
- based on GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2003-2014 by the INDEPNET Development Team.
-
- -------------------------------------------------------------------------
-
- LICENSE
-
- This file is part of GLPI.
-
- GLPI is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
-
- GLPI is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with GLPI. If not, see <http://www.gnu.org/licenses/>.
- --------------------------------------------------------------------------
+/**
+ * ---------------------------------------------------------------------
+ * GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2015-2017 Teclib' and contributors.
+ *
+ * http://glpi-project.org
+ *
+ * based on GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2003-2014 by the INDEPNET Development Team.
+ *
+ * ---------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of GLPI.
+ *
+ * GLPI is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * GLPI is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GLPI. If not, see <http://www.gnu.org/licenses/>.
+ * ---------------------------------------------------------------------
  */
 
 /** @file
@@ -50,11 +49,11 @@ class Document_Item extends CommonDBRelation{
    // From CommonDBRelation
    static public $itemtype_1    = 'Document';
    static public $items_id_1    = 'documents_id';
-   static public $take_entity_1 = true ;
+   static public $take_entity_1 = true;
 
    static public $itemtype_2    = 'itemtype';
    static public $items_id_2    = 'items_id';
-   static public $take_entity_2 = false ;
+   static public $take_entity_2 = false;
 
 
    /**
@@ -78,8 +77,9 @@ class Document_Item extends CommonDBRelation{
          $ticket = new Ticket();
          // Not item linked for closed tickets
          if ($ticket->getFromDB($this->fields['items_id'])
-             && in_array($ticket->fields['status'],$ticket->getClosedStatusArray())) {
-           return false;
+             && in_array($ticket->fields['status'], $ticket->getClosedStatusArray())) {
+
+            return false;
          }
       }
 
@@ -101,17 +101,24 @@ class Document_Item extends CommonDBRelation{
       }
 
       // Avoid duplicate entry
-      $restrict = "`documents_id` = '".$input['documents_id']."'
-                   AND `itemtype` = '".$input['itemtype']."'
-                   AND `items_id` = '".$input['items_id']."'";
-      if (countElementsInTable($this->getTable(),$restrict) > 0) {
+      if (countElementsInTable($this->getTable(),
+                              ['documents_id' => $input['documents_id'],
+                               'itemtype'     => $input['itemtype'],
+                               'items_id'     => $input['items_id']]) > 0) {
          return false;
       }
+
+      // #1476 - Inject ID of the actual user to known who attach an already existing document
+      // to another item
+      if (!isset($input['users_id'])) {
+         $input['users_id'] = Session::getLoginUserID();
+      }
+
       return parent::prepareInputForAdd($input);
    }
 
 
-  /**
+   /**
     * @since version 0.90.2
     *
     * @see CommonDBTM::pre_deleteItem()
@@ -131,8 +138,8 @@ class Document_Item extends CommonDBRelation{
          if (isset($tt->mandatory['_documents_id'])) {
             // refuse delete if only one document
             if (countElementsInTable($this->getTable(),
-                                     "`items_id` =". $this->fields['items_id'] ."
-                                          AND `itemtype` = 'Ticket'") == 1) {
+                                    ['items_id' => $this->fields['items_id'],
+                                     'itemtype' => 'Ticket' ]) == 1) {
                $message = sprintf(__('Mandatory fields are not filled. Please correct: %s'),
                                   _n('Document', 'Documents', 2));
                Session::addMessageAfterRedirect($message, false, ERROR);
@@ -187,7 +194,7 @@ class Document_Item extends CommonDBRelation{
          $doc->getFromDB($this->fields['documents_id']);
          if (!empty($doc->fields['tag'])) {
             $ticket->getFromDB($this->fields['items_id']);
-            $input['content'] = $ticket->cleanTagOrImage($ticket->fields['content'],
+            $input['content'] = Toolbox::cleanTagOrImage($ticket->fields['content'],
                                                          array($doc->fields['tag']));
          }
 
@@ -227,7 +234,7 @@ class Document_Item extends CommonDBRelation{
          }
          $nb += countElementsInTable(array('glpi_documents_items'), $restrict);
       }
-      return $nb ;
+      return $nb;
    }
 
 
@@ -235,11 +242,9 @@ class Document_Item extends CommonDBRelation{
     * @param $item   Document object
    **/
    static function countForDocument(Document $item) {
-
-      $restrict = "`glpi_documents_items`.`documents_id` = '".$item->getField('id')."'
-                   AND `glpi_documents_items`.`itemtype` != '".$item->getType()."'";
-
-      return countElementsInTable(array('glpi_documents_items'), $restrict);
+      return countElementsInTable(array('glpi_documents_items'),
+                                 ['glpi_documents_items.documents_id' => $item->getField('id'),
+                                  'NOT' => ['glpi_documents_items.itemtype' => $item->getType()]]);
    }
 
 
@@ -411,7 +416,7 @@ class Document_Item extends CommonDBRelation{
       $header_end .= "</tr>";
       echo $header_begin.$header_top.$header_end;
 
-      for ($i=0 ; $i < $number ; $i++) {
+      for ($i=0; $i < $number; $i++) {
          $itemtype=$DB->result($result, $i, "itemtype");
          if (!($item = getItemForItemtype($itemtype))) {
             continue;
@@ -456,7 +461,7 @@ class Document_Item extends CommonDBRelation{
 
             if ($itemtype =='KnowbaseItem') {
                if (Session::getLoginUserID()) {
-                 $where = "AND ".KnowbaseItem::addVisibilityRestrict();
+                  $where = "AND ".KnowbaseItem::addVisibilityRestrict();
                } else {
                   // Anonymous access
                   if (Session::isMultiEntitiesMode()) {
@@ -597,7 +602,7 @@ class Document_Item extends CommonDBRelation{
       $entity = $_SESSION["glpiactive_entity"];
       if ($item->isEntityAssign()) {
          /// Case of personal items : entity = -1 : create on active entity (Reminder case))
-         if ($item->getEntityID() >=0 ) {
+         if ($item->getEntityID() >=0) {
             $entity = $item->getEntityID();
          }
       }
@@ -612,7 +617,7 @@ class Document_Item extends CommonDBRelation{
       if ($item->getType() == 'Ticket') {
          echo "<input type='hidden' name='tickets_id' value='".$item->getID()."'>";
       }
-      echo Html::file(array('multiple' => true));
+      Html::file();
       echo "</td><td class='left'>(".Document::getMaxUploadSize().")&nbsp;</td>";
       echo "<td></td></tr>";
    }
@@ -662,17 +667,17 @@ class Document_Item extends CommonDBRelation{
 
          if ($item->isEntityAssign()) {
             /// Case of personal items : entity = -1 : create on active entity (Reminder case))
-            if ($item->getEntityID() >=0 ) {
+            if ($item->getEntityID() >=0) {
                $entity = $item->getEntityID();
             }
 
             if ($item->isRecursive()) {
-               $entities = getSonsOf('glpi_entities',$entity);
+               $entities = getSonsOf('glpi_entities', $entity);
             } else {
                $entities = $entity;
             }
          }
-         $limit = getEntitiesRestrictRequest(" AND ","glpi_documents",'',$entities,true);
+         $limit = getEntitiesRestrictRequest(" AND ", "glpi_documents", '', $entities, true);
 
          $q = "SELECT COUNT(*)
                FROM `glpi_documents`
@@ -680,8 +685,7 @@ class Document_Item extends CommonDBRelation{
                $limit";
 
          $result = $DB->query($q);
-         $nb     = $DB->result($result,0,0);
-
+         $nb     = $DB->result($result, 0, 0);
 
          if ($item->getType() == 'Document') {
             $used[$item->getID()] = $item->getID();
@@ -709,7 +713,7 @@ class Document_Item extends CommonDBRelation{
          if ($item->getType() == 'Ticket') {
             echo "<input type='hidden' name='tickets_id' value='".$item->getID()."'>";
          }
-         echo Html::file(array('multiple' => true));
+         Html::file();
          echo "</td><td class='left'>(".Document::getMaxUploadSize().")&nbsp;</td>";
          echo "<td class='center' width='20%'>";
          echo "<input type='submit' name='add' value=\""._sx('button', 'Add a new file')."\"
@@ -819,7 +823,7 @@ class Document_Item extends CommonDBRelation{
                       AND `glpi_documents_items`.`itemtype` = '".$item->getType()."' ";
 
       if (Session::getLoginUserID()) {
-         $query .= getEntitiesRestrictRequest(" AND","glpi_documents",'','',true);
+         $query .= getEntitiesRestrictRequest(" AND", "glpi_documents", '', '', true);
       } else {
          // Anonymous access from FAQ
          $query .= " AND `glpi_documents`.`entities_id`= '0' ";
@@ -845,7 +849,7 @@ class Document_Item extends CommonDBRelation{
                           AND `glpi_documents_items`.`itemtype` = '".$item->getType()."' ";
 
          if (Session::getLoginUserID()) {
-            $query .= getEntitiesRestrictRequest(" AND","glpi_documents",'','',true);
+            $query .= getEntitiesRestrictRequest(" AND", "glpi_documents", '', '', true);
          } else {
             // Anonymous access from FAQ
             $query .= " AND `glpi_documents`.`entities_id`='0' ";
@@ -865,7 +869,6 @@ class Document_Item extends CommonDBRelation{
             $used[$data['id']]           = $data['id'];
          }
       }
-
 
       echo "<div class='spaced'>";
       if ($canedit
@@ -918,7 +921,7 @@ class Document_Item extends CommonDBRelation{
          }
 
          $document = new Document();
-         foreach  ($documents as $data) {
+         foreach ($documents as $data) {
             $docID        = $data["id"];
             $link         = NOT_AVAILABLE;
             $downloadlink = NOT_AVAILABLE;
@@ -948,7 +951,7 @@ class Document_Item extends CommonDBRelation{
             if (!empty($data["link"])) {
                echo "<a target=_blank href='".formatOutputWebLink($data["link"])."'>".$data["link"];
                echo "</a>";
-            } else {;
+            } else {
                echo "&nbsp;";
             }
             echo "</td>";
@@ -1021,4 +1024,3 @@ class Document_Item extends CommonDBRelation{
    }
 
 }
-?>

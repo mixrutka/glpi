@@ -1,33 +1,33 @@
 <?php
-/*
- -------------------------------------------------------------------------
- GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2015-2016 Teclib'.
-
- http://glpi-project.org
-
- based on GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2003-2014 by the INDEPNET Development Team.
-
- -------------------------------------------------------------------------
-
- LICENSE
-
- This file is part of GLPI.
-
- GLPI is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
-
- GLPI is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with GLPI. If not, see <http://www.gnu.org/licenses/>.
- --------------------------------------------------------------------------
+/**
+ * ---------------------------------------------------------------------
+ * GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2015-2017 Teclib' and contributors.
+ *
+ * http://glpi-project.org
+ *
+ * based on GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2003-2014 by the INDEPNET Development Team.
+ *
+ * ---------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of GLPI.
+ *
+ * GLPI is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * GLPI is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GLPI. If not, see <http://www.gnu.org/licenses/>.
+ * ---------------------------------------------------------------------
  */
 
 /** @file
@@ -197,7 +197,7 @@ class TicketTemplate extends CommonDropdown {
 
                      66                                                  => '_users_id_observer',
                      65                                                  => '_groups_id_observer',
-            );
+             );
 
          if ($withtypeandcategory) {
             $allowed_fields[$withtypeandcategory][$withitemtype]
@@ -256,7 +256,7 @@ class TicketTemplate extends CommonDropdown {
 
 
    /**
-    *  àsince version 0.84
+    *  ??since version 0.84
    **/
    function getSimplifiedInterfaceFields() {
 
@@ -323,17 +323,6 @@ class TicketTemplate extends CommonDropdown {
          }
       }
       return '';
-   }
-
-
-
-   /**
-    * Get search function for the class
-    *
-    * @return array of search option
-   **/
-   function getSearchOptions() {
-      return parent::getSearchOptions();
    }
 
 
@@ -439,7 +428,7 @@ class TicketTemplate extends CommonDropdown {
                if ($field == 'itemtype') {
                   $output .= "<input type='hidden' name='items_id' value=\"".
                                $ticket->fields['items_id']."\">";
-                  if ($num = array_search('items_id',$this->getAllowedFields())) {
+                  if ($num = array_search('items_id', $this->getAllowedFields())) {
                      $output = sprintf(__('%1$s - %2$s'), $output,
                                        $ticket->getValueToDisplay($num, $ticket->fields,
                                                                   $display_options));
@@ -611,7 +600,7 @@ class TicketTemplate extends CommonDropdown {
                      $input2['is_recursive'] = 1;
                      $input2 = Toolbox::addslashes_deep($input2);
 
-                     if (!$item->import($input2)){
+                     if (!$item->import($input2)) {
                         $ma->itemDone($item->getType(), $key, MassiveAction::ACTION_KO);
                         $ma->addMessage($item->getErrorMessage(ERROR_ON_ACTION));
                      } else {
@@ -724,7 +713,7 @@ class TicketTemplate extends CommonDropdown {
    function formatFieldsToMerge($data) {
 
       $output = array();
-      foreach($data as $val){
+      foreach ($data as $val) {
          $output[$val['num']] = $val;
       }
 
@@ -732,7 +721,7 @@ class TicketTemplate extends CommonDropdown {
    }
 
 
-  /**
+   /**
     * Import a dropdown - check if already exists
     *
     * @since version 0.90

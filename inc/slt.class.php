@@ -1,33 +1,33 @@
 <?php
-/*
- -------------------------------------------------------------------------
- GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2016 Teclib'.
-
- http://glpi-project.org
-
- based on GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2003-2014 by the INDEPNET Development Team.
-
- -------------------------------------------------------------------------
-
- LICENSE
-
- This file is part of GLPI.
-
- GLPI is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
-
- GLPI is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with GLPI. If not, see <http://www.gnu.org/licenses/>.
- --------------------------------------------------------------------------
+/**
+ * ---------------------------------------------------------------------
+ * GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2015-2017 Teclib' and contributors.
+ *
+ * http://glpi-project.org
+ *
+ * based on GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2003-2014 by the INDEPNET Development Team.
+ *
+ * ---------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of GLPI.
+ *
+ * GLPI is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * GLPI is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GLPI. If not, see <http://www.gnu.org/licenses/>.
+ * ---------------------------------------------------------------------
  */
 
 if (!defined('GLPI_ROOT')) {
@@ -68,7 +68,7 @@ class SLT extends CommonDBChild {
    **/
    function setTicketCalendar($calendars_id) {
 
-      if ($this->fields['calendars_id'] == -1 ) {
+      if ($this->fields['calendars_id'] == -1) {
          $this->fields['calendars_id'] = $calendars_id;
       }
    }
@@ -390,7 +390,7 @@ class SLT extends CommonDBChild {
          switch ($item->getType()) {
             case 'SLA' :
                if ($_SESSION['glpishow_count_on_tabs']) {
-                  $nb = countElementsInTable('glpi_slts', "`slas_id` = '".$item->getField('id')."'");
+                  $nb = countElementsInTable('glpi_slts', ['slas_id' => $item->getField('id')]);
                }
                return self::createTabEntry(self::getTypeName(1), $nb);
          }
@@ -426,7 +426,7 @@ class SLT extends CommonDBChild {
     */
    function getSltDataForTicket($tickets_id, $type) {
 
-      switch($type){
+      switch ($type) {
          case SLT::TTR :
             $field = 'slts_ttr_id';
             break;
@@ -456,7 +456,7 @@ class SLT extends CommonDBChild {
     *
     * @return array
    **/
-   static function getSltFieldNames($type){
+   static function getSltFieldNames($type) {
 
       $dateField = null;
       $sltField  = null;
@@ -524,7 +524,7 @@ class SLT extends CommonDBChild {
                $slaoptions['link'] = Toolbox::getItemTypeFormURL('SLT').
                                           "?id=".$this->fields["id"];
             }
-            Html::showToolTip($commentsla,$slaoptions);
+            Html::showToolTip($commentsla, $slaoptions);
             if ($canupdate) {
                $fields = array('slt_delete'        => 'slt_delete',
                                'id'                => $ticket->getID(),
@@ -563,8 +563,8 @@ class SLT extends CommonDBChild {
             }
             echo $tt->getEndHiddenFieldValue($dateField, $ticket);
             echo "</td>";
-            $slt_data = $this->getSltData("`type` = '$type'
-                                           AND `entities_id` = '".$ticket->fields['entities_id']."'");
+            $sql_entities = getEntitiesRestrictRequest("", "", "", $ticket->fields['entities_id'], true);
+            $slt_data     = $this->getSltData("`type` = '$type' AND $sql_entities");
             if ($canupdate
                 && !empty($slt_data)) {
                echo "<td>";
@@ -595,13 +595,15 @@ class SLT extends CommonDBChild {
                                                    'canedit'    => $canupdate));
          echo $tt->getEndHiddenFieldValue($dateField, $ticket);
          echo "</td>";
-         $slt_data = $this->getSltData("`type` = '$type'
-                                        AND `entities_id` = '".$ticket->fields['entities_id']."'");
+         $sql_entities = getEntitiesRestrictRequest("", "", "", $ticket->fields['entities_id'], true);
+         $slt_data     = $this->getSltData("`type` = '$type' AND $sql_entities");
          if ($canupdate
              && !empty($slt_data)) {
             echo "<th>".$tt->getBeginHiddenFieldText($sltField);
-            printf(__('%1$s%2$s'), __('SLT'), $tt->getMandatoryMark($sltField));
-            echo $tt->getEndHiddenFieldText('slas_id')."</th>";
+            if (!$tt->isHiddenField($sltField) || $tt->isPredefinedField($sltField)) {
+               echo "<th>".sprintf(__('%1$s%2$s'), __('SLT'), $tt->getMandatoryMark($sltField))."</th>";
+            }
+            echo $tt->getEndHiddenFieldText($sltField);
             echo "<td class='nopadding'>".$tt->getBeginHiddenFieldValue($sltField);
             Slt::dropdown(array('name'      => $sltField,
                                 'entity'    => $ticket->fields["entities_id"],
@@ -652,7 +654,7 @@ class SLT extends CommonDBChild {
     *
     * @param $options
    **/
-   static function getSltTypeDropdown($options){
+   static function getSltTypeDropdown($options) {
 
       $params = array('name'  => 'type');
 
@@ -664,51 +666,75 @@ class SLT extends CommonDBChild {
    }
 
 
-   function getSearchOptions() {
+   function getSearchOptionsNew() {
+      $tab = [];
 
-      $tab                        = array();
-      $tab['common']              = __('Characteristics');
+      $tab[] = [
+         'id'                 => 'common',
+         'name'               => __('Characteristics')
+      ];
 
-      $tab[1]['table']            = $this->getTable();
-      $tab[1]['field']            = 'name';
-      $tab[1]['name']             = __('Name');
-      $tab[1]['datatype']         = 'itemlink';
-      $tab[1]['massiveaction']    = false;
+      $tab[] = [
+         'id'                 => '1',
+         'table'              => $this->getTable(),
+         'field'              => 'name',
+         'name'               => __('Name'),
+         'datatype'           => 'itemlink',
+         'massiveaction'      => false
+      ];
 
-      $tab[2]['table']            = $this->getTable();
-      $tab[2]['field']            = 'id';
-      $tab[2]['name']             = __('ID');
-      $tab[2]['massiveaction']    = false;
-      $tab[2]['datatype']         = 'number';
+      $tab[] = [
+         'id'                 => '2',
+         'table'              => $this->getTable(),
+         'field'              => 'id',
+         'name'               => __('ID'),
+         'massiveaction'      => false,
+         'datatype'           => 'number'
+      ];
 
-      $tab[5]['table']            = $this->getTable();
-      $tab[5]['field']            = 'number_time';
-      $tab[5]['name']             = __('Time');
-      $tab[5]['datatype']         = 'specific';
-      $tab[5]['massiveaction']    = false;
-      $tab[5]['nosearch']         = true;
-      $tab[5]['additionalfields'] = array('definition_time');
+      $tab[] = [
+         'id'                 => '5',
+         'table'              => $this->getTable(),
+         'field'              => 'number_time',
+         'name'               => __('Time'),
+         'datatype'           => 'specific',
+         'massiveaction'      => false,
+         'nosearch'           => true,
+         'additionalfields'   => ['definition_time']
+      ];
 
-      $tab[6]['table']            = $this->getTable();
-      $tab[6]['field']            = 'end_of_working_day';
-      $tab[6]['name']             = __('End of working day');
-      $tab[6]['datatype']         = 'bool';
-      $tab[6]['massiveaction']    = false;
+      $tab[] = [
+         'id'                 => '6',
+         'table'              => $this->getTable(),
+         'field'              => 'end_of_working_day',
+         'name'               => __('End of working day'),
+         'datatype'           => 'bool',
+         'massiveaction'      => false
+      ];
 
-      $tab[7]['table']            = $this->getTable();
-      $tab[7]['field']            = 'type';
-      $tab[7]['name']             = __('Type');
-      $tab[7]['datatype']         = 'specific';
+      $tab[] = [
+         'id'                 => '7',
+         'table'              => $this->getTable(),
+         'field'              => 'type',
+         'name'               => __('Type'),
+         'datatype'           => 'specific'
+      ];
 
-      $tab[8]['table']            = 'glpi_slas';
-      $tab[8]['field']            = 'name';
-      $tab[8]['name']             = __('SLA');
-      $tab[8]['datatype']         = 'dropdown';
+      $tab[] = [
+         'id'                 => '8',
+         'table'              => 'glpi_slas',
+         'field'              => 'name',
+         'name'               => __('SLA'),
+         'datatype'           => 'dropdown'
+      ];
 
-      $tab[16]['table']           = $this->getTable();
-      $tab[16]['field']           = 'comment';
-      $tab[16]['name']            = __('Comments');
-      $tab[16]['datatype']        = 'text';
+      $tab[] = [
+         'id'                 => '16',
+         'table'              => $this->getTable(),
+         'field'              => 'comment',
+         'name'               => __('Comments'),
+         'datatype'           => 'text'
+      ];
 
       return $tab;
    }
@@ -797,7 +823,7 @@ class SLT extends CommonDBChild {
          if ($this->fields['number_time'] >= 0) {
             $starttime = strtotime($start_date);
             $endtime   = $starttime+$delay+$additional_delay;
-            return date('Y-m-d H:i:s',$endtime);
+            return date('Y-m-d H:i:s', $endtime);
          }
       }
 
@@ -860,7 +886,7 @@ class SLT extends CommonDBChild {
                $delay    += $additional_delay+$slalevel->fields['execution_time'];
                $starttime = strtotime($start_date);
                $endtime   = $starttime+$delay;
-               return date('Y-m-d H:i:s',$endtime);
+               return date('Y-m-d H:i:s', $endtime);
             }
          }
       }
@@ -910,8 +936,10 @@ class SLT extends CommonDBChild {
     *
     * @return execution date time (NULL if sla not exists)
    **/
-   function addLevelToDo(Ticket $ticket, $slalevels_id) {
+   function addLevelToDo(Ticket $ticket, $slalevels_id = 0) {
 
+      $slalevels_id = ($slalevels_id ? $slalevels_id
+                                     : $ticket->fields["ttr_slalevels_id"]);
       if ($slalevels_id > 0) {
          $toadd = array();
          $date = $this->computeExecutionDate($ticket->fields['date'], $slalevels_id,
@@ -937,7 +965,7 @@ class SLT extends CommonDBChild {
    static function deleteLevelsToDo(Ticket $ticket) {
       global $DB;
 
-      if ($ticket->fields["slalevels_id"] > 0) {
+      if ($ticket->fields["ttr_slalevels_id"] > 0) {
          $query = "SELECT *
                    FROM `glpi_slalevels_tickets`
                    WHERE `tickets_id` = '".$ticket->fields["id"]."'";

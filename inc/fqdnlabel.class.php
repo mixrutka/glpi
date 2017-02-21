@@ -1,34 +1,33 @@
 <?php
-/*
- * @version $Id$
- -------------------------------------------------------------------------
- GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2015 Teclib'.
-
- http://glpi-project.org
-
- based on GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2003-2014 by the INDEPNET Development Team.
- 
- -------------------------------------------------------------------------
-
- LICENSE
-
- This file is part of GLPI.
-
- GLPI is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
-
- GLPI is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with GLPI. If not, see <http://www.gnu.org/licenses/>.
- --------------------------------------------------------------------------
+/**
+ * ---------------------------------------------------------------------
+ * GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2015-2017 Teclib' and contributors.
+ *
+ * http://glpi-project.org
+ *
+ * based on GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2003-2014 by the INDEPNET Development Team.
+ *
+ * ---------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of GLPI.
+ *
+ * GLPI is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * GLPI is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GLPI. If not, see <http://www.gnu.org/licenses/>.
+ * ---------------------------------------------------------------------
 */
 
 /** @file
@@ -80,16 +79,20 @@ abstract class FQDNLabel extends CommonDBChild {
    **/
    static function checkFQDNLabel($label) {
 
-      if (strlen($label) >= 63) {
-         return false;
-      }
-
       if (strlen($label) == 1) {
          if (!preg_match("/^[0-9A-Za-z]$/", $label, $regs)) {
             return false;
          }
-      } else if (!preg_match("/^[0-9A-Za-z][0-9A-Za-z\-]*[0-9A-Za-z]+$/", $label, $regs)) {
-         return false;
+      } else {
+         $fqdn_regex = "/^(?!-)[A-Za-z0-9-]{1,63}(?<!-)$/";
+         if (!preg_match($fqdn_regex, $label, $regs)) {
+            //check also Internationalized domain name
+            $punycode = new TrueBV\Punycode();
+            $idn = $punycode->encode($label);
+            if (!preg_match($fqdn_regex, $idn, $regs)) {
+               return false;
+            }
+         }
       }
 
       return true;
@@ -260,4 +263,3 @@ abstract class FQDNLabel extends CommonDBChild {
       return array();
    }
 }
-?>

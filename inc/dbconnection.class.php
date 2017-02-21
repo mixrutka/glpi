@@ -1,34 +1,33 @@
 <?php
-/*
- * @version $Id$
- -------------------------------------------------------------------------
- GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2015 Teclib'.
-
- http://glpi-project.org
-
- based on GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2003-2014 by the INDEPNET Development Team.
-
- -------------------------------------------------------------------------
-
- LICENSE
-
- This file is part of GLPI.
-
- GLPI is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
-
- GLPI is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with GLPI. If not, see <http://www.gnu.org/licenses/>.
- --------------------------------------------------------------------------
+/**
+ * ---------------------------------------------------------------------
+ * GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2015-2017 Teclib' and contributors.
+ *
+ * http://glpi-project.org
+ *
+ * based on GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2003-2014 by the INDEPNET Development Team.
+ *
+ * ---------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of GLPI.
+ *
+ * GLPI is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * GLPI is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GLPI. If not, see <http://www.gnu.org/licenses/>.
+ * ---------------------------------------------------------------------
  */
 
 /** @file
@@ -68,12 +67,12 @@ class DBConnection extends CommonDBTM {
    **/
    static function createMainConfig($host, $user, $password, $DBname) {
 
-      $DB_str = "<?php\n class DB extends DBmysql {
-                \n public \$dbhost     = '". $host ."';
-                \n public \$dbuser     = '". $user ."';
-                \n public \$dbpassword = '". rawurlencode($password) ."';
-                \n public \$dbdefault  = '". $DBname ."';
-                \n}\n";
+      $DB_str = "<?php\nclass DB extends DBmysql {\n" .
+                "   public \$dbhost     = '$host';\n" .
+                "   public \$dbuser     = '$user';\n" .
+                "   public \$dbpassword = '". rawurlencode($password) . "';\n" .
+                "   public \$dbdefault  = '$DBname';\n" .
+                "}\n";
 
       return Toolbox::writeConfig('config_db.php', $DB_str);
    }
@@ -288,8 +287,7 @@ class DBConnection extends CommonDBTM {
                $res = self::switchToMaster();
             }
 
-         // Slave DB configured
-         } else {
+         } else { // Slave DB configured
             // Try to connect to slave if wanted
             if ($use_slave) {
                $res = self::switchToSlave();
@@ -361,12 +359,12 @@ class DBConnection extends CommonDBTM {
          echo "<div class='center'><p class ='b'>
                 A link to the SQL server could not be established. Please check your configuration.
                 </p><p class='b'>
-                Le serveur Mysql est inaccessible. Vérifiez votre configuration</p>
+                Le serveur Mysql est inaccessible. V??rifiez votre configuration</p>
                </div>";
          Html::nullFooter();
       } else {
          echo "A link to the SQL server could not be established. Please check your configuration.\n";
-         echo "Le serveur Mysql est inaccessible. Vérifiez votre configuration\n";
+         echo "Le serveur Mysql est inaccessible. V??rifiez votre configuration\n";
       }
 
       die();
@@ -496,4 +494,3 @@ class DBConnection extends CommonDBTM {
    }
 
 }
-?>

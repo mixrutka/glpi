@@ -1,34 +1,33 @@
 <?php
-/*
- * @version $Id$
- -------------------------------------------------------------------------
- GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2015 Teclib'.
-
- http://glpi-project.org
-
- based on GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2003-2014 by the INDEPNET Development Team.
-
- -------------------------------------------------------------------------
-
- LICENSE
-
- This file is part of GLPI.
-
- GLPI is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
-
- GLPI is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with GLPI. If not, see <http://www.gnu.org/licenses/>.
- --------------------------------------------------------------------------
+/**
+ * ---------------------------------------------------------------------
+ * GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2015-2017 Teclib' and contributors.
+ *
+ * http://glpi-project.org
+ *
+ * based on GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2003-2014 by the INDEPNET Development Team.
+ *
+ * ---------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of GLPI.
+ *
+ * GLPI is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * GLPI is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GLPI. If not, see <http://www.gnu.org/licenses/>.
+ * ---------------------------------------------------------------------
  */
 
 /** @file
@@ -135,7 +134,7 @@ class TicketTask  extends CommonITILTask {
 
       if ($ticket->getFromDB($this->fields['tickets_id'])
           // No validation for closed tickets
-          && !in_array($ticket->fields['status'],$ticket->getClosedStatusArray())) {
+          && !in_array($ticket->fields['status'], $ticket->getClosedStatusArray())) {
          return (Session::haveRight(self::$rightname, parent::ADDALLITEM)
                  || $ticket->isUser(CommonITILActor::ASSIGN, Session::getLoginUserID())
                  || (isset($_SESSION["glpigroups"])
@@ -187,7 +186,7 @@ class TicketTask  extends CommonITILTask {
     * @return array of planning item
    **/
    static function populatePlanning($options=array()) {
-      return parent::genericPopulatePlanning(__CLASS__,$options);
+      return parent::genericPopulatePlanning(__CLASS__, $options);
    }
 
 
@@ -199,7 +198,7 @@ class TicketTask  extends CommonITILTask {
     * @return Already planned information
    **/
    static function getAlreadyPlannedInformation($val) {
-      return parent::genericGetAlreadyPlannedInformation(__CLASS__,$val);
+      return parent::genericGetAlreadyPlannedInformation(__CLASS__, $val);
    }
 
 
@@ -215,7 +214,7 @@ class TicketTask  extends CommonITILTask {
     * @return Nothing (display function)
    **/
    static function displayPlanningItem(array $val, $who, $type="", $complete=0) {
-      return parent::genericDisplayPlanningItem(__CLASS__,$val, $who, $type, $complete);
+      return parent::genericDisplayPlanningItem(__CLASS__, $val, $who, $type, $complete);
    }
 
 
@@ -273,12 +272,13 @@ class TicketTask  extends CommonITILTask {
          echo "<input type='hidden' name='id' value='$ID'>";
       }
 
+      Plugin::doHook("post_item_form", ['item' => $this, 'options' => &$params]);
+
       echo "<tr class='tab_bg_2'>";
       echo "<td class='center' colspan='".($params['colspan']*2)."'>";
 
       if ($this->isNewID($ID)) {
          echo Ticket::getSplittedSubmitButtonHtml($this->fields['tickets_id'], 'add');
-//         echo "<input type='hidden' name='id' value='$ID'>";
       } else {
          if ($params['candel']
                // no dustbin in tickettask
@@ -295,7 +295,7 @@ class TicketTask  extends CommonITILTask {
          if ($params['candel']) {
             echo "<td class='right' colspan='".($params['colspan']*2)."' >\n";
             if ($this->can($ID, PURGE)) {
-               echo Html::submit(_x('button','Delete permanently'),
+               echo Html::submit(_x('button', 'Delete permanently'),
                                  array('name'    => 'purge',
                                        'confirm' => __('Confirm the final deletion?')));
             }
@@ -310,4 +310,3 @@ class TicketTask  extends CommonITILTask {
       Html::closeForm();
    }
 }
-?>

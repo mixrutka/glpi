@@ -1,33 +1,33 @@
 <?php
-/*
- -------------------------------------------------------------------------
- GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2015-2016 Teclib'.
-
- http://glpi-project.org
-
- based on GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2003-2014 by the INDEPNET Development Team.
-
- -------------------------------------------------------------------------
-
- LICENSE
-
- This file is part of GLPI.
-
- GLPI is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
-
- GLPI is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with GLPI. If not, see <http://www.gnu.org/licenses/>.
- --------------------------------------------------------------------------
+/**
+ * ---------------------------------------------------------------------
+ * GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2015-2017 Teclib' and contributors.
+ *
+ * http://glpi-project.org
+ *
+ * based on GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2003-2014 by the INDEPNET Development Team.
+ *
+ * ---------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of GLPI.
+ *
+ * GLPI is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * GLPI is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GLPI. If not, see <http://www.gnu.org/licenses/>.
+ * ---------------------------------------------------------------------
  */
 
 /** @file
@@ -244,8 +244,9 @@ class RuleTicket extends Rule {
                   if ($action->fields['field'] == 'locations_id' && isset($output['items_locations'])) {
                      $output['locations_id'] = $output['items_locations'];
                   }
-                  if ($action->fields['field'] == 'groups_id' && isset($output['items_groups'])) {
-                     $output['groups_id'] = $output['items_groups'];
+                  if ($action->fields['field'] == '_groups_id_requester'
+                      && isset($output['items_groups'])) {
+                     $output['_groups_id_requester'] = $output['items_groups'];
                   }
                   break;
 
@@ -499,7 +500,6 @@ class RuleTicket extends Rule {
       $actions['_groups_id_requester']['force_actions']     = array('assign', 'append', 'fromitem');
       $actions['_groups_id_requester']['permitseveral']     = array('append');
       $actions['_groups_id_requester']['appendto']          = '_additional_groups_requesters';
-
 
       $actions['_users_id_assign']['name']                  = __('Technician');
       $actions['_users_id_assign']['type']                  = 'dropdown_assign';

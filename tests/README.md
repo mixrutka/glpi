@@ -4,6 +4,31 @@ To run the GLPI test suite you need
 
 * [PHPunit](https://phpunit.de/) version 4.8 or greater
 
+Installing composer development dependencies
+----------------------
+
+Run the **composer install** command without --no-dev option in the top of GLPI tree:
+
+```bash
+$ composer install -o
+
+Loading composer repositories with package information
+Installing dependencies (including require-dev) from lock file
+  - Installing react/promise (v2.4.1)
+    Loading from cache
+
+  - Installing guzzlehttp/streams (3.0.0)
+    Loading from cache
+
+  - Installing guzzlehttp/ringphp (1.1.0)
+    Loading from cache
+
+  - Installing guzzlehttp/guzzle (5.3.1)
+    Loading from cache
+
+Generating optimized autoload files
+```
+
 Creating a dedicated database
 -----------------------------
 
@@ -11,7 +36,7 @@ Use the **CliInstall** script to create a new database,
 only used for the test suite, using the `--tests` option:
 
 ```bash
-$ php tools/cliinstall.php --db=glpitests --user=root --pass=xxxx --lang=fr_FR --tests
+$ php tools/cliinstall.php --db=glpitests --user=root --pass=xxxx --lang=en_US --tests
 Connect to the DB...
 Create the DB...
 Save configuration file...
@@ -40,7 +65,19 @@ Using the same database than the web application is not recommended.
 Running the test suite
 ----------------------
 
+If you want to run the full test suite,
+including the API tests,
+you need to run a development server:
+
+```bash
+php -S localhost:8088 tests/router.php &>/dev/null &
+```
+
+If you want to skip the API test suite,
+you have to use the "`--exclude-group api`" option.
+
 Run the **phpunit** command in the top of GLPI tree:
+
 
 ```bash
 $ phpunit

@@ -1,33 +1,33 @@
 <?php
-/*
- -------------------------------------------------------------------------
- GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2015-2016 Teclib'.
-
- http://glpi-project.org
-
- based on GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2003-2014 by the INDEPNET Development Team.
-
- -------------------------------------------------------------------------
-
- LICENSE
-
- This file is part of GLPI.
-
- GLPI is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
-
- GLPI is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with GLPI. If not, see <http://www.gnu.org/licenses/>.
- --------------------------------------------------------------------------
+/**
+ * ---------------------------------------------------------------------
+ * GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2015-2017 Teclib' and contributors.
+ *
+ * http://glpi-project.org
+ *
+ * based on GLPI - Gestionnaire Libre de Parc Informatique
+ * Copyright (C) 2003-2014 by the INDEPNET Development Team.
+ *
+ * ---------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of GLPI.
+ *
+ * GLPI is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * GLPI is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GLPI. If not, see <http://www.gnu.org/licenses/>.
+ * ---------------------------------------------------------------------
  */
 
 /** @file
@@ -49,19 +49,15 @@ function header_html($etape) {
    // Send UTF8 Headers
    header("Content-Type: text/html; charset=UTF-8");
 
-   echo "<!DOCTYPE HTML PUBLIC '-//W3C//DTD HTML 4.01 Transitional//EN'
-          'http://www.w3.org/TR/html4/loose.dtd'>";
-   echo "<html>";
-   echo "<head>";
-   echo "<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>";
+   echo "<!DOCTYPE html'>";
+   echo "<html lang='fr'>";
+    echo "<head>";
+    echo "<meta charset='utf-8'>";
    echo "<meta http-equiv='Content-Script-Type' content='text/javascript'> ";
-   echo "<meta http-equiv='Content-Style-Type' content='text/css'> ";
-   echo "<meta http-equiv='Content-Language' content='fr'> ";
-   echo "<meta name='generator' content=''>";
-   echo "<meta name='DC.Language' content='fr' scheme='RFC1766'>";
+    echo "<meta http-equiv='Content-Style-Type' content='text/css'> ";
    echo "<title>Setup GLPI</title>";
 
-   // LIBS
+    // LIBS
    echo Html::script("../lib/jquery/js/jquery-1.10.2.min.js");
    echo Html::script("../lib/jqueryplugins/select2/select2.min.js");
    echo Html::css("../lib/jqueryplugins/select2/select2.css");
@@ -239,11 +235,10 @@ function step3($host, $user, $password, $update) {
    //Check if the port is in url
    $hostport = explode(":", $host);
    if (count($hostport) < 2) {
-     $link = new mysqli($hostport[0], $user, $password);
+      $link = new mysqli($hostport[0], $user, $password);
    } else {
-     $link = new mysqli($hostport[0], $user, $password, '', $hostport[1]);
+      $link = new mysqli($hostport[0], $user, $password, '', $hostport[1]);
    }
-
 
    if ($link->connect_error
        || empty($host)
@@ -340,7 +335,6 @@ function step4 ($databasename, $newdatabasename) {
    //display the form to return to the previous step.
    echo "<h3>".__('Initialization of the database')."</h3>";
 
-
    function prev_form($host, $user, $password) {
 
       echo "<br><form action='install.php' method='post'>";
@@ -354,7 +348,6 @@ function step4 ($databasename, $newdatabasename) {
       Html::closeForm();
    }
 
-
    //Display the form to go to the next page
    function next_form() {
 
@@ -365,13 +358,12 @@ function step4 ($databasename, $newdatabasename) {
       Html::closeForm();
    }
 
-
    //Check if the port is in url
    $hostport = explode(":", $host);
    if (count($hostport) < 2) {
-     $link = new mysqli($hostport[0], $user, $password);
+      $link = new mysqli($hostport[0], $user, $password);
    } else {
-     $link = new mysqli($hostport[0], $user, $password, '', $hostport[1]);
+      $link = new mysqli($hostport[0], $user, $password, '', $hostport[1]);
    }
 
    $databasename    = $link->real_escape_string($databasename);
@@ -386,7 +378,7 @@ function step4 ($databasename, $newdatabasename) {
          prev_form($host, $user, $password);
 
       } else {
-         if (DBConnection::createMainConfig($host,$user,$password,$databasename)) {
+         if (DBConnection::createMainConfig($host, $user, $password, $databasename)) {
             Toolbox::createSchema($_SESSION["glpilanguage"]);
             echo "<p>".__('OK - database was initialized')."</p>";
 
@@ -403,7 +395,7 @@ function step4 ($databasename, $newdatabasename) {
       if ($link->select_db($newdatabasename)) {
          echo "<p>".__('Database created')."</p>";
 
-         if (DBConnection::createMainConfig($host,$user,$password,$newdatabasename)) {
+         if (DBConnection::createMainConfig($host, $user, $password, $newdatabasename)) {
             Toolbox::createSchema($_SESSION["glpilanguage"]);
             echo "<p>".__('OK - database was initialized')."</p>";
             next_form();
@@ -418,7 +410,7 @@ function step4 ($databasename, $newdatabasename) {
             echo "<p>".__('Database created')."</p>";
 
             if ($link->select_db($newdatabasename)
-                && Toolbox::createMainConfig($host,$user,$password,$newdatabasename)) {
+                && DBConnection::createMainConfig($host, $user, $password, $newdatabasename)) {
 
                Toolbox::createSchema($_SESSION["glpilanguage"]);
                echo "<p>".__('OK - database was initialized')."</p>";
@@ -455,7 +447,6 @@ function step7() {
    include_once(GLPI_CONFIG_DIR . "/config_db.php");
    $DB = new DB();
 
-
    $url_base = str_replace("/install/install.php", "", $_SERVER['HTTP_REFERER']);
    $query = "UPDATE `glpi_configs`
              SET `value`     = '".$DB->escape($url_base)."'
@@ -488,7 +479,7 @@ function update1($DBname) {
    $user     = $_SESSION['db_access']['user'];
    $password = $_SESSION['db_access']['password'];
 
-   if (DBConnection::createMainConfig($host,$user,$password,$DBname) && !empty($DBname)) {
+   if (DBConnection::createMainConfig($host, $user, $password, $DBname) && !empty($DBname)) {
       $from_install = true;
       include_once(GLPI_ROOT ."/install/update.php");
 
@@ -587,7 +578,7 @@ if (!isset($_POST["install"])) {
       case "Etape_2" : // mysql settings ok, go test mysql settings and select database.
          checkConfigFile();
          header_html(sprintf(__('Step %d'), 2));
-         step3($_POST["db_host"],$_POST["db_user"],$_POST["db_pass"],$_POST["update"]);
+         step3($_POST["db_host"], $_POST["db_user"], $_POST["db_pass"], $_POST["update"]);
          break;
 
       case "Etape_3" : // Create and fill database
